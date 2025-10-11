@@ -6,7 +6,8 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/Debug",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "INCLUDE_TESTS": "ON"
       }
     },
     {
@@ -14,7 +15,17 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/Release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "INCLUDE_TESTS": "ON"
+      }
+    },
+    {
+      "name": "Production",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "INCLUDE_TESTS": "OFF"
       }
     }
   ]

@@ -17,7 +17,7 @@ else()
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (INCLUDE_TESTS STREQUAL "ON")
     include(FetchContent)
     FetchContent_Declare(
         Catch2
