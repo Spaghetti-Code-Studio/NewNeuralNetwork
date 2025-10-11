@@ -22,7 +22,7 @@
     {
       "name": "Production",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/Release",
+      "binaryDir": "${sourceDir}/out/build/Production",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "INCLUDE_TESTS": "OFF"
