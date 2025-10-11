@@ -17,5 +17,15 @@ else()
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 endif()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    include(FetchContent)
+    FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.11.0
+    )
+    FetchContent_MakeAvailable(Catch2)
+endif()
+
 add_subdirectory(src/lib)
 add_subdirectory(src)
