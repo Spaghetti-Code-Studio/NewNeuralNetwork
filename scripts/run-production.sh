@@ -1,2 +1,2 @@
-./scripts/build-release.sh
+./scripts/build-production.sh
 ./build/src/NewNeuralNetworkProgram
