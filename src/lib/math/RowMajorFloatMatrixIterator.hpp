@@ -12,7 +12,6 @@ namespace nnn {
     size_t m_col;
 
    public:
-    RowMajorFloatMatrixIterator(FloatMatrix* mat, size_t row, size_t col);
     RowMajorFloatMatrixIterator(FloatMatrix* mat);
 
     void Restart();
