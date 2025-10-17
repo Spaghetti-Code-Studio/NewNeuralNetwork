@@ -465,7 +465,7 @@ TEST_CASE("Basic rectangle matrix scalar multiplication") {
   CHECK(b(1, 2) == 30.0f);
 }
 
-TEST_CASE("Function mapping to basic matrix") {
+TEST_CASE("Function mapping and aggregating to basic matrix") {
   auto aResult = nnn::FloatMatrix::Create(2, 2, {1.0f, 2.0f, 3.0f, 4.0f});
   REQUIRE(aResult.has_value());
   auto& a = aResult.value();
@@ -476,4 +476,16 @@ TEST_CASE("Function mapping to basic matrix") {
   CHECK(squared(0, 1) == 4.0f);
   CHECK(squared(1, 0) == 9.0f);
   CHECK(squared(1, 1) == 16.0f);
+
+  squared.MapInPlace([](float x) { return x - 16.0f; });
+  CHECK(squared(0, 0) == -15.0f);
+  CHECK(squared(0, 1) == -12.0f);
+  CHECK(squared(1, 0) == -7.0f);
+  CHECK(squared(1, 1) == 0.0f);
+
+  float sum = squared.Aggregate<float>([](float x) { return x; });
+  CHECK(sum == -34.0f);
+
+  int count = squared.Aggregate<int>([](float x) { return x >= 0.0f ? 1 : 0; });
+  CHECK(count == 1);
 }

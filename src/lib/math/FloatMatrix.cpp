@@ -154,6 +154,12 @@ namespace nnn {
     return result;
   }
 
+  void FloatMatrix::MapInPlace(const std::function<float(float)>& func) {
+    for (size_t i = 0; i < m_data.size(); ++i) {
+      m_data[i] = func(m_data[i]);
+    }
+  }
+
   std::string FloatMatrix::ToString() const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(3);

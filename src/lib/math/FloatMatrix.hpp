@@ -48,6 +48,18 @@ namespace nnn {
     FloatMatrix& operator*=(float scalar);
 
     FloatMatrix Map(const std::function<float(float)>& func) const;
+    void MapInPlace(const std::function<float(float)>& func);
+
+    template <typename T>
+    T Aggregate(const std::function<T(float)>& func) const {  //
+
+      T result{};
+      for (size_t i = 0; i < m_data.size(); ++i) {
+        result += func(m_data[i]);
+      }
+
+      return result;
+    }
 
     std::string ToString() const;
 
