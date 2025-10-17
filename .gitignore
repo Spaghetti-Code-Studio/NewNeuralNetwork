@@ -43,6 +43,9 @@
 # Visual Studio
 .vs/
 
+# VS Code
+.vscode/
+
 # Builds
 out/
 build/
