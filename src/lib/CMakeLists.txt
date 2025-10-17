@@ -13,9 +13,9 @@ target_include_directories(NewNeuralNetwork
 )
 
 if (INCLUDE_TESTS STREQUAL "ON")
-    add_executable(MathUnitTests "math/tests/FloatMatrix.test.cpp")
-    target_link_libraries(MathUnitTests PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
+    add_executable(FloatMatrixUnitTests "math/tests/FloatMatrix.test.cpp")
+    target_link_libraries(FloatMatrixUnitTests PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
 
     enable_testing()
-    add_test(NAME MathUnitTests COMMAND MathUnitTests)
+    add_test(NAME FloatMatrixUnitTests COMMAND FloatMatrixUnitTests)
 endif()
