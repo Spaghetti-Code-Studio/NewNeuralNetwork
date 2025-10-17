@@ -1,12 +1,10 @@
 #include "FloatMatrix.hpp"
 #include "FloatMatrixInvalidDimensionException.hpp"
 
-#include <cassert>
 #include <iomanip>
 #include <ios>
 #include <random>
 #include <sstream>
-#include <stdexcept>
 #include <utility>
 
 namespace nnn {
@@ -157,5 +155,4 @@ namespace nnn {
     }
     return oss.str();
   }
-
 }  // namespace nnn

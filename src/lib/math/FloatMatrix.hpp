@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
-#include <functional>
 
 namespace nnn {
 
