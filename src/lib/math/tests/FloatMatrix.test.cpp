@@ -458,3 +458,16 @@ TEST_CASE("Basic rectangle matrix scalar multiplication") {
   CHECK(b(1, 1) == 25.0f);
   CHECK(b(1, 2) == 30.0f);
 }
+
+TEST_CASE("Matrix map function") {
+  auto aResult = nnn::FloatMatrix::Create(2, 3, {1.0f, 2.0f, 3.0f, 4.0f});
+  REQUIRE(aResult.has_value());
+  auto& a = aResult.value();
+  
+  // Test squaring elements
+  nnn::FloatMatrix squared = a.Map([](float x) { return x * x; });
+  CHECK(squared(0, 0) == 1.0f);
+  CHECK(squared(0, 1) == 4.0f);
+  CHECK(squared(1, 0) == 9.0f);
+  CHECK(squared(1, 1) == 16.0f);
+}
