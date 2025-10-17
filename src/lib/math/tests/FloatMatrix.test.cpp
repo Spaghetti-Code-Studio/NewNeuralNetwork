@@ -463,7 +463,7 @@ TEST_CASE("Function mapping to basic matrix") {
   auto aResult = nnn::FloatMatrix::Create(2, 2, {1.0f, 2.0f, 3.0f, 4.0f});
   REQUIRE(aResult.has_value());
   auto& a = aResult.value();
-  
+
   // Test squaring elements
   nnn::FloatMatrix squared = a.Map([](float x) { return x * x; });
   CHECK(squared(0, 0) == 1.0f);

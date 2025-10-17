@@ -18,8 +18,8 @@ namespace nnn {
 
   FloatMatrix::FloatMatrix(size_t rows, size_t cols, const std::vector<float>& data)
       : m_rows(rows), m_cols(cols), m_transposed(false), m_data(data) {
-    if(data.size() != rows * cols){
-        throw FloatMatrixInvalidDimensionException("Data size must match matrix dimensions");
+    if (data.size() != rows * cols) {
+      throw FloatMatrixInvalidDimensionException("Data size must match matrix dimensions");
     }
   }
 
@@ -82,10 +82,9 @@ namespace nnn {
 
   FloatMatrix FloatMatrix::operator+(const FloatMatrix& other) const {
     if (m_rows != other.m_rows) {
-        throw FloatMatrixInvalidDimensionException("Cannot add matrices when row count does not match.");
-    }
-    else if (m_cols != other.m_cols) {
-        throw FloatMatrixInvalidDimensionException("Cannot add matrices when column count does not match.");
+      throw FloatMatrixInvalidDimensionException("Cannot add matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException("Cannot add matrices when column count does not match.");
     }
 
     size_t side = m_rows;
@@ -101,7 +100,8 @@ namespace nnn {
 
   FloatMatrix FloatMatrix::operator*(const FloatMatrix& other) const {
     if (m_cols != other.m_rows) {
-      throw FloatMatrixInvalidDimensionException("Cannot multiply matrices when column count does not match row count.");
+      throw FloatMatrixInvalidDimensionException(
+          "Cannot multiply matrices when column count does not match row count.");
     }
 
     FloatMatrix result = FloatMatrix(m_rows, other.m_cols);
