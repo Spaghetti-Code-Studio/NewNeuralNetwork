@@ -459,8 +459,8 @@ TEST_CASE("Basic rectangle matrix scalar multiplication") {
   CHECK(b(1, 2) == 30.0f);
 }
 
-TEST_CASE("Matrix map function") {
-  auto aResult = nnn::FloatMatrix::Create(2, 3, {1.0f, 2.0f, 3.0f, 4.0f});
+TEST_CASE("Function mapping to basic matrix") {
+  auto aResult = nnn::FloatMatrix::Create(2, 2, {1.0f, 2.0f, 3.0f, 4.0f});
   REQUIRE(aResult.has_value());
   auto& a = aResult.value();
   
