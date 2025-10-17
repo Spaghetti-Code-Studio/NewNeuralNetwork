@@ -13,6 +13,7 @@
 
 namespace nnn {
 
+  // TODO: put implementations into .cpp file and update CMakeLists.txt accordingly
   class FloatMatrix {  //
 
    private:
