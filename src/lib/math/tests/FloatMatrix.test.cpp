@@ -278,6 +278,12 @@ TEST_CASE("Basic square matrix addition") {
   CHECK(result(0, 1) == 8.0f);
   CHECK(result(1, 0) == 10.0f);
   CHECK(result(1, 1) == 12.0f);
+
+  result += b.value();
+  CHECK(result(0, 0) == 11.0f);
+  CHECK(result(0, 1) == 14.0f);
+  CHECK(result(1, 0) == 17.0f);
+  CHECK(result(1, 1) == 20.0f);
 }
 
 TEST_CASE("Transposed square matrix addition") {

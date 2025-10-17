@@ -96,6 +96,21 @@ namespace nnn {
     return result;
   }
 
+  FloatMatrix& FloatMatrix::operator+=(const FloatMatrix& other) {
+    if (m_rows != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException("Cannot add matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException("Cannot add matrices when column count does not match.");
+    }
+
+    size_t side = m_rows;
+    for (size_t row = 0; row < side; ++row) {
+      for (size_t col = 0; col < side; ++col) {
+        (*this)(row, col) = (*this)(row, col) + other(row, col);
+      }
+    }
+  }
+
   FloatMatrix FloatMatrix::operator*(const FloatMatrix& other) const {
     if (m_cols != other.m_rows) {
       throw FloatMatrixInvalidDimensionException(
