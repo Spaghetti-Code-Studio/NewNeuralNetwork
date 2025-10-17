@@ -120,14 +120,14 @@ namespace nnn {
     FloatMatrix result = FloatMatrix(m_rows, other.m_cols);
 
     for (size_t i = 0; i < m_rows; ++i) {
-      for (size_t j = 0; j < other.m_cols; ++j) {
-        float sum = 0.0f;
-        for (size_t k = 0; k < m_cols; ++k) {
-          sum += (*this)(i, k) * other(k, j);
+      for (size_t k = 0; k < m_cols; ++k) {
+        float a = (*this)(i, k);
+        for (size_t j = 0; j < other.m_cols; ++j) {
+          result(i, j) += a * other(k, j);
         }
-        result(i, j) = sum;
       }
     }
+
     return result;
   }
 
