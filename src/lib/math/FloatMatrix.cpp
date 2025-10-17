@@ -1,5 +1,5 @@
 #include "FloatMatrix.hpp"
-#include "FloatMatrixInvalidDimension.hpp"
+#include "FloatMatrixInvalidDimensionException.hpp"
 
 #include <cassert>
 #include <iomanip>
