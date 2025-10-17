@@ -1,5 +1,7 @@
-add_library(NewNeuralNetwork
-    "math/Math.cpp"
+add_library(NewNeuralNetwork 
+    "math/FloatMatrix.cpp"
+    "math/RowMajorFloatMatrixIterator.cpp"
+    "math/ColumnMajorFloatMatrixIterator.cpp"
 )
 
 target_include_directories(NewNeuralNetwork
@@ -11,7 +13,7 @@ target_include_directories(NewNeuralNetwork
 )
 
 if (INCLUDE_TESTS STREQUAL "ON")
-    add_executable(MathUnitTests "math/tests/Math.test.cpp")
+    add_executable(MathUnitTests "math/tests/FloatMatrix.test.cpp")
     target_link_libraries(MathUnitTests PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
 
     enable_testing()
