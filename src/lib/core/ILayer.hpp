@@ -1,0 +1,15 @@
+#pragma once
+
+#include "FloatMatrix.hpp"
+
+namespace nnn {
+
+  class ILayer {
+   public:
+    virtual ~ILayer() = 0;
+    virtual FloatMatrix Forward(FloatMatrix& inputVector) = 0;
+    virtual void Update(const FloatMatrix& weights, const FloatMatrix& biases) = 0;
+  };
+
+  inline ILayer::~ILayer() = default;
+}  // namespace nnn
