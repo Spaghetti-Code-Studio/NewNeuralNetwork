@@ -3,6 +3,7 @@ add_library(NewNeuralNetwork
     "math/RowMajorFloatMatrixIterator.cpp"
     "math/ColumnMajorFloatMatrixIterator.cpp"
     "core/DenseLayer.cpp"
+    "core/ReLU.cpp"
 )
 
 target_include_directories(NewNeuralNetwork
