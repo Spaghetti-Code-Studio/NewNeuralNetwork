@@ -16,7 +16,7 @@ TEST_CASE("Neural Network Forward Pass Basic Dense Layer Forward Evaluation With
   nnn::FloatMatrix input = nnn::FloatMatrix::Create(3, 1, {1.0f, 2.0f, 3.0f}).value();
 
   auto neuralNetwork = nnn::NeuralNetwork();
-  neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(3, 2, relu));
+  size_t index = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(3, 2, std::make_unique<nnn::ReLU>()));
 
   auto result = neuralNetwork.RunForwardPass(input);
 

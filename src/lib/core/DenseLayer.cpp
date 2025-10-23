@@ -3,17 +3,17 @@
 
 namespace nnn {
 
-  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, const IActivationFunction& activationFunction)
+  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction)
       : m_inputSize(inputSize),
         m_outputSize(outputSize),
         m_biases(FloatMatrix::Zeroes(outputSize, 1)),
         m_weights(FloatMatrix::Random(outputSize, inputSize)),
-        m_activationFunction(activationFunction) {}
+        m_activationFunction(std::move(activationFunction)) {}
 
   FloatMatrix DenseLayer::Forward(FloatMatrix& inputVector) {
     auto result = m_weights * inputVector;
     result += m_biases;
-    m_activationFunction.Evaluate(result);
+    m_activationFunction->Evaluate(result);
     return result;
   }
 

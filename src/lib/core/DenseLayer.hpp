@@ -1,14 +1,16 @@
 #pragma once
 
-#include "ILayer.hpp"
-#include <FloatMatrix.hpp>
+#include <memory>
+
+#include "FloatMatrix.hpp"
 #include "IActivationFunction.hpp"
+#include "ILayer.hpp"
 
 namespace nnn {
 
   class DenseLayer : public ILayer {
    public:
-    DenseLayer(size_t neuronCount, size_t outputSize, const IActivationFunction& activationFunction);
+    DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction);
     FloatMatrix Forward(FloatMatrix& inputVector) override;
     void Update(const FloatMatrix& weights, const FloatMatrix& biases) override;
 
@@ -20,6 +22,6 @@ namespace nnn {
     size_t m_outputSize;
     FloatMatrix m_weights;
     FloatMatrix m_biases;
-    const IActivationFunction& m_activationFunction;
+    std::unique_ptr<IActivationFunction> m_activationFunction;
   };
 }  // namespace nnn
