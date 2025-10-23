@@ -11,11 +11,10 @@ namespace nnn {
    public:
     NeuralNetwork() = default;
 
-    void AddLayer(std::unique_ptr<ILayer>&& layer);
+    size_t AddLayer(std::unique_ptr<ILayer>&& layer);
+    ILayer* GetLayer(size_t index);
 
     FloatMatrix RunForwardPass(FloatMatrix input);
-
-    ILayer* GetLayer(size_t index);
 
    private:
     std::vector<std::unique_ptr<ILayer>> m_layers;

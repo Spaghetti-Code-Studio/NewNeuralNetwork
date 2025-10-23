@@ -2,7 +2,10 @@
 
 namespace nnn {
 
-  void NeuralNetwork::AddLayer(std::unique_ptr<ILayer>&& layer) { m_layers.push_back(std::move(layer)); }
+  size_t NeuralNetwork::AddLayer(std::unique_ptr<ILayer>&& layer) {
+    m_layers.push_back(std::move(layer));
+    return m_layers.size() - 1;
+  }
 
   FloatMatrix NeuralNetwork::RunForwardPass(FloatMatrix input) {  //
 

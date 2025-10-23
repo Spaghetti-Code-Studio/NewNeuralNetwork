@@ -10,9 +10,8 @@
 #include "NeuralNetwork.hpp"
 #include "ReLU.hpp"
 
-TEST_CASE("Neural Network Forward Pass Basic Dense Layer Forward Evaluation With ReLU") {  //
+TEST_CASE("Neural Network Forward-Pass With Basic Dense Layer With ReLU Activation Function") {  //
 
-  auto relu = nnn::ReLU();
   nnn::FloatMatrix input = nnn::FloatMatrix::Create(3, 1, {1.0f, 2.0f, 3.0f}).value();
 
   auto neuralNetwork = nnn::NeuralNetwork();
@@ -27,7 +26,7 @@ TEST_CASE("Neural Network Forward Pass Basic Dense Layer Forward Evaluation With
 
   nnn::FloatMatrix newBiases = nnn::FloatMatrix::Create(2, 1, {-5.0f, 5.0f}).value();
 
-  nnn::ILayer* baseLayer = neuralNetwork.GetLayer(0);
+  nnn::ILayer* baseLayer = neuralNetwork.GetLayer(index);
   nnn::DenseLayer* layer = dynamic_cast<nnn::DenseLayer*>(baseLayer);
 
   layer->Update(layer->GetWeights(), newBiases);
