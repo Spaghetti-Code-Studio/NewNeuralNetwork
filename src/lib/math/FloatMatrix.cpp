@@ -85,11 +85,10 @@ namespace nnn {
       throw FloatMatrixInvalidDimensionException("Cannot add matrices when column count does not match.");
     }
 
-    size_t side = m_rows;
-    FloatMatrix result(side, side);
+    FloatMatrix result(m_rows, m_cols);
 
-    for (size_t row = 0; row < side; ++row) {
-      for (size_t col = 0; col < side; ++col) {
+    for (size_t row = 0; row < m_rows; ++row) {
+      for (size_t col = 0; col < m_cols; ++col) {
         result(row, col) = (*this)(row, col) + other(row, col);
       }
     }
@@ -103,9 +102,8 @@ namespace nnn {
       throw FloatMatrixInvalidDimensionException("Cannot add matrices when column count does not match.");
     }
 
-    size_t side = m_rows;
-    for (size_t row = 0; row < side; ++row) {
-      for (size_t col = 0; col < side; ++col) {
+    for (size_t row = 0; row < m_rows; ++row) {
+      for (size_t col = 0; col < m_cols; ++col) {
         (*this)(row, col) = (*this)(row, col) + other(row, col);
       }
     }
