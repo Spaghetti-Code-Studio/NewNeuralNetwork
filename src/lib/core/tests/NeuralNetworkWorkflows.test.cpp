@@ -1,33 +1,38 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <memory>
 
 #include "DenseLayer.hpp"
 #include "FloatMatrix.hpp"
-#include "ReLU.hpp"
+#include "ILayer.hpp"
 #include "NeuralNetwork.hpp"
+#include "ReLU.hpp"
 
-TEST_CASE("Neural Network Forward Pass Basic Dense Layer Forward Evaluation With ReLU") {
+TEST_CASE("Neural Network Forward Pass Basic Dense Layer Forward Evaluation With ReLU") {  //
+
   auto relu = nnn::ReLU();
-  auto input = nnn::FloatMatrix::Create(3, 1, {1.0f, 2.0f, 3.0f});
+  nnn::FloatMatrix input = nnn::FloatMatrix::Create(3, 1, {1.0f, 2.0f, 3.0f}).value();
 
   auto neuralNetwork = nnn::NeuralNetwork();
   neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(3, 2, relu));
-  auto result = neuralNetwork.RunForwardPass(input.value());
+
+  auto result = neuralNetwork.RunForwardPass(input);
 
   CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs(4.820, 0.001));
   CHECK_THAT(result(1, 0), Catch::Matchers::WithinAbs(3.986, 0.001));
 
-  auto biasResult = nnn::FloatMatrix::Create(2, 1, {-5.0f, 5.0f});
-  auto& bias = biasResult.value();
+  // -----------------------------------------------------------------------------------------
 
-  auto value = neuralNetwork.GetLayer(0);
-  nnn::ILayer* baseLayer = value;
+  nnn::FloatMatrix newBiases = nnn::FloatMatrix::Create(2, 1, {-5.0f, 5.0f}).value();
+
+  nnn::ILayer* baseLayer = neuralNetwork.GetLayer(0);
   nnn::DenseLayer* layer = dynamic_cast<nnn::DenseLayer*>(baseLayer);
-  layer->Update(layer->GetWeights(), bias);
 
-  result = neuralNetwork.RunForwardPass(input.value());
+  layer->Update(layer->GetWeights(), newBiases);
+
+  result = neuralNetwork.RunForwardPass(input);
 
   CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs(0.0f, 0.001));
   CHECK_THAT(result(1, 0), Catch::Matchers::WithinAbs(8.986, 0.001));

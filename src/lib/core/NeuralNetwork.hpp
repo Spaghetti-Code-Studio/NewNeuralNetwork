@@ -13,7 +13,7 @@ namespace nnn {
 
     void AddLayer(std::unique_ptr<ILayer>&& layer);
 
-    FloatMatrix RunForwardPass(FloatMatrix& input);
+    FloatMatrix RunForwardPass(FloatMatrix input);
 
     ILayer* GetLayer(size_t index);
 
