@@ -11,7 +11,7 @@ namespace nnn {
   class DenseLayer : public ILayer {
    public:
     DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction);
-    FloatMatrix Forward(FloatMatrix& inputVector) override;
+    FloatMatrix Forward(const FloatMatrix& inputVector) const override;
     void Update(const FloatMatrix& weights, const FloatMatrix& biases) override;
 
     inline const FloatMatrix& GetWeights() const { return m_weights; }

@@ -10,7 +10,7 @@ namespace nnn {
         m_weights(FloatMatrix::Random(outputSize, inputSize)),
         m_activationFunction(std::move(activationFunction)) {}
 
-  FloatMatrix DenseLayer::Forward(FloatMatrix& inputVector) {
+  FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) const {
     auto result = m_weights * inputVector;
     result += m_biases;
     m_activationFunction->Evaluate(result);

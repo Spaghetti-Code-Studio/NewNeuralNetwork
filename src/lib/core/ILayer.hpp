@@ -7,7 +7,7 @@ namespace nnn {
   class ILayer {
    public:
     virtual ~ILayer() = 0;
-    virtual FloatMatrix Forward(FloatMatrix& inputVector) = 0;
+    virtual FloatMatrix Forward(const FloatMatrix& inputVector) const = 0;
     virtual void Update(const FloatMatrix& weights, const FloatMatrix& biases) = 0;
   };
 
