@@ -9,7 +9,7 @@ namespace nnn {
 
   FloatMatrix NeuralNetwork::RunForwardPass(FloatMatrix input) {  //
 
-    for (auto& layer : m_layers) {
+    for (const auto& layer : m_layers) {
       input = layer->Forward(input);
     }
 
