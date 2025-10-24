@@ -107,6 +107,8 @@ namespace nnn {
         (*this)(row, col) = (*this)(row, col) + other(row, col);
       }
     }
+
+    return *this;
   }
 
   FloatMatrix FloatMatrix::operator*(const FloatMatrix& other) const {
