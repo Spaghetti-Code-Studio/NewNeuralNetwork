@@ -50,7 +50,7 @@ namespace nnn {
     FloatMatrix Map(const std::function<float(float)>& func) const;
     void MapInPlace(const std::function<float(float)>& func);
 
-    void AddToAllRows(const FloatMatrix& vector);
+    void AddToAllCols(const FloatMatrix& vector);
 
     template <typename T>
     T Aggregate(const std::function<T(float)>& func) const {  //

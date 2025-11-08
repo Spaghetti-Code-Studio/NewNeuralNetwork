@@ -12,7 +12,7 @@ namespace nnn {
 
   FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) const {
     auto result = m_weights * inputVector;
-    result.AddToAllRows(m_biases);
+    result.AddToAllCols(m_biases);
     m_activationFunction->Evaluate(result);
     return result;
   }
