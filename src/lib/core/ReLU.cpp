@@ -10,6 +10,6 @@ namespace nnn {
   }
 
   void ReLU::Derivative(FloatMatrix& input) const {
-    input.MapInPlace([](float x) { return x > 0 ? 1 : 0;});
+    input.MapInPlace([](float x) { return x > 0 ? 1 : 0; });
   }
 }  // namespace nnn
