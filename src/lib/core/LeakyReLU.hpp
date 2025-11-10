@@ -11,6 +11,7 @@ namespace nnn {
     LeakyReLU(float alpha);
     void Evaluate(FloatMatrix& input) const override;
     void Derivative(FloatMatrix& input) const override;
+
    private:
     float m_alpha = 0.05;
   };
