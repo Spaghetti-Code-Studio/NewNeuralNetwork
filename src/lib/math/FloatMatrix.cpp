@@ -160,6 +160,23 @@ namespace nnn {
     }
   }
 
+  void FloatMatrix::AddToAllCols(const FloatMatrix& vector) {
+    if (vector.m_cols != 1) {
+      throw FloatMatrixInvalidDimensionException("Invalid vector for addition: the matrix is not a column vector.");
+    }
+
+    if (vector.m_rows != m_rows) {
+      throw FloatMatrixInvalidDimensionException(
+          "Invalid vector for addition: the vector height must match matrix row count.");
+    }
+
+    for (size_t r = 0; r < m_rows; ++r) {
+      for (size_t c = 0; c < m_cols; ++c) {
+        (*this)(r, c) += vector(r, 0);
+      }
+    }
+  }
+
   std::string FloatMatrix::ToString() const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(3);

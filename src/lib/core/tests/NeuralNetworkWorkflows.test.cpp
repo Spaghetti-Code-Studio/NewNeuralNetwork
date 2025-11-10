@@ -35,7 +35,6 @@ TEST_CASE("2 Layer NN - Forward pass XOR with ReLU") {
   auto neuralNetwork = nnn::NeuralNetwork();
 
   size_t l1 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(2, 2, std::make_unique<nnn::ReLU>()));
-
   size_t l2 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(2, 1, std::make_unique<nnn::ReLU>()));
 
   auto weights1 = nnn::FloatMatrix::Create(2, 2, {1.0f, 1.0f, 1.0f, 1.0f}).value();
@@ -71,6 +70,51 @@ TEST_CASE("2 Layer NN - Forward pass XOR with ReLU") {
   input = nnn::FloatMatrix::Create(2, 1, {1.0f, 1.0f}).value();
   result = neuralNetwork.RunForwardPass(input);
   CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs(0.0f, 0.001));
+}
+
+TEST_CASE("2 Layer NN - Batch forward pass XOR with ReLU") {
+  auto neuralNetwork = nnn::NeuralNetwork();
+
+  size_t l1 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(2, 2, std::make_unique<nnn::ReLU>()));
+  size_t l2 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(2, 1, std::make_unique<nnn::ReLU>()));
+
+  auto weights1 = nnn::FloatMatrix::Ones(2, 2);
+  auto biases1 = nnn::FloatMatrix::Create(1, 2, {-1.5f, -0.5f}).value();
+  biases1.Transpose();  // using transposed should act as a column vector
+
+  nnn::ILayer* baseLayer1 = neuralNetwork.GetLayer(l1);
+  nnn::DenseLayer* denseLayer1 = dynamic_cast<nnn::DenseLayer*>(baseLayer1);
+  denseLayer1->Update(weights1, biases1);
+
+  auto weights2 = nnn::FloatMatrix::Create(1, 2, {-6.0f, 2.0f}).value();
+  auto biases2 = nnn::FloatMatrix::Zeroes(1, 1);
+
+  nnn::ILayer* baseLayer2 = neuralNetwork.GetLayer(l2);
+  nnn::DenseLayer* denseLayer2 = dynamic_cast<nnn::DenseLayer*>(baseLayer2);
+  denseLayer2->Update(weights2, biases2);
+
+  // compute all combinations at once
+  auto input = nnn::FloatMatrix::Create(2, 4,
+      {
+          0.0f,
+          0.0f,
+          1.0f,
+          1.0f,
+          0.0f,
+          1.0f,
+          0.0f,
+          1.0f,
+      })
+                   .value();
+
+  auto result = neuralNetwork.RunForwardPass(input);
+
+  CHECK(result.GetColCount() == 4);  // matrix should contain all outputs
+
+  CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs(0.0f, 0.001));
+  CHECK_THAT(result(0, 1), Catch::Matchers::WithinAbs(1.0f, 0.001));
+  CHECK_THAT(result(0, 2), Catch::Matchers::WithinAbs(1.0f, 0.001));
+  CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs(0.0f, 0.001));
 }
 
 // TODO: tests with complex activations function
