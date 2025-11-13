@@ -22,7 +22,7 @@ namespace nnn {
     // compute loss function
     FloatMatrix loss = FloatMatrix::Random(expected.GetRowCount(), expected.GetColCount());
 
-    for (int i = m_layers.size() - 2; i >= 0; --i) {
+    for (int i = m_layers.size() - 1; i >= 0; --i) {
       loss = m_layers[i]->Backward(loss);
     }
 
