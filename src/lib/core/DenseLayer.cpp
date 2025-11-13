@@ -30,11 +30,14 @@ namespace nnn {
 
   {}
 
-  FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) {
+  FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) {  //
+
     m_lastInput = inputVector;
+
     auto result = m_weights * inputVector;
     result.AddToAllCols(m_biases);
     m_lastInnerPotential = result;
+
     m_activationFunction->Evaluate(result);
     return result;
   }
@@ -60,5 +63,6 @@ namespace nnn {
     m_biases = biases;
   }
   const FloatMatrix& DenseLayer::GetWeights() const { return m_weights; }
+
   const FloatMatrix& DenseLayer::GetBiases() const { return m_biases; }
 }  // namespace nnn

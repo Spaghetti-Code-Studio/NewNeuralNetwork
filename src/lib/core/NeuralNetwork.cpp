@@ -19,14 +19,15 @@ namespace nnn {
   void NeuralNetwork::Train(const FloatMatrix& input, const FloatMatrix& expected, HyperParameters params) {
     auto actual = RunForwardPass(input);
 
-    // compute loss function
-    FloatMatrix loss = FloatMatrix::Random(expected.GetRowCount(), expected.GetColCount());
+    // TODO: compute correct loss function
+    FloatMatrix loss = (actual - expected) * 2.0f;
 
     for (int i = m_layers.size() - 1; i >= 0; --i) {
       loss = m_layers[i]->Backward(loss);
     }
 
     for (const auto& layer : m_layers) {
+      // TODO: make this cleaner and nicer
       auto copyOfWeights = layer->GetWeights();
       copyOfWeights *= params.learningRate;
       auto copyOfBiases = layer->GetBiases();
