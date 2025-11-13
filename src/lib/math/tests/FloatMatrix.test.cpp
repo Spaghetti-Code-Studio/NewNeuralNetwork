@@ -489,3 +489,11 @@ TEST_CASE("Function mapping and aggregating to basic matrix") {
   int count = squared.Aggregate<int>([](float x) { return x >= 0.0f ? 1 : 0; });
   CHECK(count == 1);
 }
+
+TEST_CASE("Matrix column sum") {
+  auto a = nnn::FloatMatrix::Create(2, 2, {1.0f, 2.0f, 3.0f, 4.0f});
+  auto result = nnn::FloatMatrix::SumColumns(a.value());
+
+  CHECK(result(0, 0) == 3);
+  CHECK(result(1, 0) == 7);
+}

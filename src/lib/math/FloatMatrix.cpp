@@ -195,6 +195,17 @@ namespace nnn {
     }
     return result;
   }
+
+  FloatMatrix FloatMatrix::SumColumns(const FloatMatrix& matrix) {
+    auto result = nnn::FloatMatrix(matrix.GetRowCount(), 1);
+    for (size_t i = 0; i < matrix.GetRowCount(); i++) {
+      for (size_t j = 0; j < matrix.GetColCount(); j++) {
+        result(i, 0) += matrix(i, j);
+      }
+    }
+    return result;
+  }
+
   std::string FloatMatrix::ToString() const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(3);

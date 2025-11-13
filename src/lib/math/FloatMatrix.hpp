@@ -65,6 +65,8 @@ namespace nnn {
       return result;
     }
 
+    static FloatMatrix SumColumns(const FloatMatrix& matrix);
+
     std::string ToString() const;
 
    private:
