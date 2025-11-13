@@ -16,7 +16,7 @@ namespace nnn {
         std::unique_ptr<IActivationFunction>&& activationFunction);
 
     DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction);
-    FloatMatrix Forward(const FloatMatrix& inputVector) const override;
+    FloatMatrix Forward(const FloatMatrix& inputVector) override;
 
     /**
      * @param gradient how much does the loss change when my outputs change (dE/dy)
