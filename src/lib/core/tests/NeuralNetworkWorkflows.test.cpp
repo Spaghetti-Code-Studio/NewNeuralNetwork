@@ -117,4 +117,49 @@ TEST_CASE("2 Layer NN - Batch forward pass XOR with ReLU") {
   CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs(0.0f, 0.001));
 }
 
-// TODO: tests with complex activations function
+TEST_CASE("2 Layer NN - Train XOR with ReLU") {
+  auto neuralNetwork = nnn::NeuralNetwork();
+
+  size_t l1 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(4, 2, 2, std::make_unique<nnn::ReLU>()));
+  size_t l2 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(4, 2, 1, std::make_unique<nnn::ReLU>()));
+
+  auto weights1 = nnn::FloatMatrix::Random(2, 2);
+  auto biases1 = nnn::FloatMatrix::Random(1, 2);
+  biases1.Transpose();  // using transposed should act as a column vector
+
+  nnn::ILayer* baseLayer1 = neuralNetwork.GetLayer(l1);
+  nnn::DenseLayer* denseLayer1 = dynamic_cast<nnn::DenseLayer*>(baseLayer1);
+  denseLayer1->Update(weights1, biases1);
+
+  auto weights2 = nnn::FloatMatrix::Random(1, 2);
+  auto biases2 = nnn::FloatMatrix::Random(1, 1);
+
+  nnn::ILayer* baseLayer2 = neuralNetwork.GetLayer(l2);
+  nnn::DenseLayer* denseLayer2 = dynamic_cast<nnn::DenseLayer*>(baseLayer2);
+  denseLayer2->Update(weights2, biases2);
+
+  // compute all combinations at once
+  auto input = nnn::FloatMatrix::Create(2, 4,
+      {
+          0.0f,
+          0.0f,
+          1.0f,
+          1.0f,
+          0.0f,
+          1.0f,
+          0.0f,
+          1.0f,
+      })
+                   .value();
+
+  auto expected = nnn::FloatMatrix::Create(1, 4, {0.0f, 1.0f, 1.0f, 0.0f}).value();
+
+  neuralNetwork.Train(input, expected, {0.5f});
+
+  auto result = neuralNetwork.RunForwardPass(input);
+
+  CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs(0.0f, 0.001));
+  CHECK_THAT(result(0, 1), Catch::Matchers::WithinAbs(1.0f, 0.001));
+  CHECK_THAT(result(0, 2), Catch::Matchers::WithinAbs(1.0f, 0.001));
+  CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs(0.0f, 0.001));
+}

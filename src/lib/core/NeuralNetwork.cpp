@@ -16,6 +16,25 @@ namespace nnn {
     return input;
   }
 
+  void NeuralNetwork::Train(const FloatMatrix& input, const FloatMatrix& expected, HyperParameters params) {
+    auto actual = RunForwardPass(input);
+
+    // compute loss function
+    FloatMatrix loss = FloatMatrix::Random(expected.GetRowCount(), expected.GetColCount());
+
+    for (int i = m_layers.size() - 2; i >= 0; --i) {
+      loss = m_layers[i]->Backward(loss);
+    }
+
+    for (const auto& layer : m_layers) {
+      auto copyOfWeights = layer->GetWeights();
+      copyOfWeights *= params.learningRate;
+      auto copyOfBiases = layer->GetBiases();
+      copyOfBiases *= params.learningRate;
+      layer->Update(copyOfWeights, copyOfBiases);
+    }
+  }
+
   ILayer* NeuralNetwork::GetLayer(size_t index) {  //
 
     if (index >= m_layers.size()) {
