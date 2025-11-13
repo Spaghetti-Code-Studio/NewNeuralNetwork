@@ -14,8 +14,8 @@ namespace nnn {
     FloatMatrix Forward(const FloatMatrix& inputVector) const override;
     void Update(const FloatMatrix& weights, const FloatMatrix& biases) override;
 
-    inline const FloatMatrix& GetWeights() const { return m_weights; }
-    inline const FloatMatrix& GetBiases() const { return m_biases; }
+    const FloatMatrix& GetWeights() const override;
+    const FloatMatrix& GetBiases() const override;
 
    private:
     size_t m_inputSize;

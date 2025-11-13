@@ -21,4 +21,6 @@ namespace nnn {
     m_weights = weights;
     m_biases = biases;
   }
+  const FloatMatrix& DenseLayer::GetWeights() const { return m_weights; }
+  const FloatMatrix& DenseLayer::GetBiases() const { return m_biases; }
 }  // namespace nnn

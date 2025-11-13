@@ -8,6 +8,8 @@ namespace nnn {
    public:
     virtual ~ILayer() = 0;
     virtual FloatMatrix Forward(const FloatMatrix& inputVector) const = 0;
+    virtual const FloatMatrix& GetBiases() const = 0;
+    virtual const FloatMatrix& GetWeights() const = 0;
     virtual void Update(const FloatMatrix& weights, const FloatMatrix& biases) = 0;
   };
 
