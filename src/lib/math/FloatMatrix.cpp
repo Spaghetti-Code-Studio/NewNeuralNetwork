@@ -177,6 +177,24 @@ namespace nnn {
     }
   }
 
+  FloatMatrix FloatMatrix::Hadamard(const FloatMatrix& other) const {  //
+
+    if (m_rows != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException(
+          "Cannot compute hadamard product for matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException(
+          "Cannot compute hadamard product for matrices when column count does not match.");
+    }
+
+    FloatMatrix result(m_rows, m_cols);
+    for (size_t i = 0; i < m_rows; ++i) {
+      for (size_t j = 0; j < m_cols; ++j) {
+        result(i, j) = (*this)(i, j) * other(i, j);
+      }
+    }
+    return result;
+  }
   std::string FloatMatrix::ToString() const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(3);

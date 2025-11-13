@@ -52,6 +52,8 @@ namespace nnn {
 
     void AddToAllCols(const FloatMatrix& vector);
 
+    FloatMatrix Hadamard(const FloatMatrix& other) const;
+
     template <typename T>
     T Aggregate(const std::function<T(float)>& func) const {  //
 
