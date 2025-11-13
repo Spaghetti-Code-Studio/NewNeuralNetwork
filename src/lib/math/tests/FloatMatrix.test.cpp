@@ -286,6 +286,48 @@ TEST_CASE("Basic square matrix addition") {
   CHECK(result(1, 1) == 20.0f);
 }
 
+TEST_CASE("Basic matrix subtraction") {
+  auto a = nnn::FloatMatrix::Create(3, 2, {7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f});
+  auto b = nnn::FloatMatrix::Create(3, 2, {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f});
+
+  REQUIRE(a.has_value());
+  REQUIRE(b.has_value());
+
+  auto result = a.value() - b.value();
+
+  CHECK(result(0, 0) == 6.0f);
+  CHECK(result(0, 1) == 6.0f);
+  CHECK(result(1, 0) == 6.0f);
+  CHECK(result(1, 1) == 6.0f);
+  CHECK(result(2, 0) == 6.0f);
+  CHECK(result(2, 1) == 6.0f);
+
+  result -= b.value();
+  CHECK(result(0, 0) == 5.0f);
+  CHECK(result(0, 1) == 4.0f);
+  CHECK(result(1, 0) == 3.0f);
+  CHECK(result(1, 1) == 2.0f);
+  CHECK(result(2, 0) == 1.0f);
+  CHECK(result(2, 1) == 0.0f);
+}
+
+TEST_CASE("Basic matrix Hadamard") {
+  auto a = nnn::FloatMatrix::Create(3, 2, {7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f});
+  auto b = nnn::FloatMatrix::Create(3, 2, {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f});
+
+  REQUIRE(a.has_value());
+  REQUIRE(b.has_value());
+
+  auto result = a.value().Hadamard(b.value());
+
+  CHECK(result(0, 0) == 7.0f);
+  CHECK(result(0, 1) == 16.0f);
+  CHECK(result(1, 0) == 27.0f);
+  CHECK(result(1, 1) == 40.0f);
+  CHECK(result(2, 0) == 55.0f);
+  CHECK(result(2, 1) == 72.0f);
+}
+
 TEST_CASE("Transposed square matrix addition") {
   auto a_result = nnn::FloatMatrix::Create(2, 2, {1.0f, 2.0f, 3.0f, 4.0f});
   auto b_result = nnn::FloatMatrix::Create(2, 2, {5.0f, 6.0f, 7.0f, 8.0f});

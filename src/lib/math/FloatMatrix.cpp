@@ -111,6 +111,39 @@ namespace nnn {
     return *this;
   }
 
+  FloatMatrix FloatMatrix::operator-(const FloatMatrix& other) const {
+    if (m_rows != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when column count does not match.");
+    }
+
+    FloatMatrix result(m_rows, m_cols);
+
+    for (size_t row = 0; row < m_rows; ++row) {
+      for (size_t col = 0; col < m_cols; ++col) {
+        result(row, col) = (*this)(row, col) - other(row, col);
+      }
+    }
+    return result;
+  }
+
+  FloatMatrix& FloatMatrix::operator-=(const FloatMatrix& other) {
+    if (m_rows != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when column count does not match.");
+    }
+
+    for (size_t row = 0; row < m_rows; ++row) {
+      for (size_t col = 0; col < m_cols; ++col) {
+        (*this)(row, col) = (*this)(row, col) - other(row, col);
+      }
+    }
+
+    return *this;
+  }
+
   FloatMatrix FloatMatrix::operator*(const FloatMatrix& other) const {
     if (m_cols != other.m_rows) {
       throw FloatMatrixInvalidDimensionException(
