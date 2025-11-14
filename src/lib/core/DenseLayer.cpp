@@ -12,8 +12,8 @@ namespace nnn {
         m_activationFunction(std::move(activationFunction)),
         m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, batchSize)),
         m_lastInput(FloatMatrix::Zeroes(inputSize, batchSize)),
-        m_gradientWeigths(outputSize, inputSize),
-        m_gradientBias(outputSize, 1)
+        m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1))
 
   {}
 
@@ -25,8 +25,8 @@ namespace nnn {
         m_activationFunction(std::move(activationFunction)),
         m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, 1)),
         m_lastInput(FloatMatrix::Zeroes(inputSize, 1)),
-        m_gradientWeigths(outputSize, inputSize),
-        m_gradientBias(outputSize, 1)
+        m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1))
 
   {}
 
@@ -47,8 +47,8 @@ namespace nnn {
     m_activationFunction->Derivative(m_lastInnerPotential);  // sigma'(inner potential)
     auto hnc = m_lastInnerPotential.Hadamard(gradient);      // dE/dy * sigma'(inner potential)
     m_lastInput.Transpose();
-    m_gradientWeigths = hnc * m_lastInput;  // dE/dw
 
+    m_gradientWeigths = hnc * m_lastInput;  // dE/dw
     m_gradientBias = FloatMatrix::SumColumns(hnc);
 
     hnc.Transpose();

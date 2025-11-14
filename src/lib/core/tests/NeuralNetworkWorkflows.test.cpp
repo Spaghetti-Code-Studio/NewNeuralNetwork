@@ -9,6 +9,7 @@
 #include "ILayer.hpp"
 #include "NeuralNetwork.hpp"
 #include "ReLU.hpp"
+#include "LeakyReLU.hpp"
 
 TEST_CASE("1 Layer NN - Basic forward pass with ReLU") {  //
 
@@ -121,22 +122,31 @@ TEST_CASE("2 Layer NN - Train XOR with ReLU") {
   auto neuralNetwork = nnn::NeuralNetwork();
 
   size_t l1 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(4, 2, 2, std::make_unique<nnn::ReLU>()));
-  size_t l2 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(4, 2, 1, std::make_unique<nnn::ReLU>()));
+  size_t l2 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(4, 2, 2, std::make_unique<nnn::ReLU>()));
+  size_t l3 = neuralNetwork.AddLayer(std::make_unique<nnn::DenseLayer>(4, 2, 1, std::make_unique<nnn::LeakyReLU>()));
 
   auto weights1 = nnn::FloatMatrix::Random(2, 2);
   auto biases1 = nnn::FloatMatrix::Random(1, 2);
-  biases1.Transpose();  // using transposed should act as a column vector
+  biases1.Transpose();
 
   nnn::ILayer* baseLayer1 = neuralNetwork.GetLayer(l1);
   nnn::DenseLayer* denseLayer1 = dynamic_cast<nnn::DenseLayer*>(baseLayer1);
   denseLayer1->Update(weights1, biases1);
 
-  auto weights2 = nnn::FloatMatrix::Random(1, 2);
-  auto biases2 = nnn::FloatMatrix::Random(1, 1);
+  auto weights2 = nnn::FloatMatrix::Random(2, 2);
+  auto biases2 = nnn::FloatMatrix::Random(1, 2);
+  biases2.Transpose();
 
   nnn::ILayer* baseLayer2 = neuralNetwork.GetLayer(l2);
   nnn::DenseLayer* denseLayer2 = dynamic_cast<nnn::DenseLayer*>(baseLayer2);
   denseLayer2->Update(weights2, biases2);
+
+  auto weights3 = nnn::FloatMatrix::Random(1, 2);
+  auto biases3 = nnn::FloatMatrix::Random(1, 1);
+
+  nnn::ILayer* baseLayer3 = neuralNetwork.GetLayer(l3);
+  nnn::DenseLayer* denseLayer3 = dynamic_cast<nnn::DenseLayer*>(baseLayer3);
+  denseLayer3->Update(weights3, biases3);
 
   // compute all combinations at once
   auto input = nnn::FloatMatrix::Create(2, 4,
@@ -154,7 +164,11 @@ TEST_CASE("2 Layer NN - Train XOR with ReLU") {
 
   auto expected = nnn::FloatMatrix::Create(1, 4, {0.0f, 1.0f, 1.0f, 0.0f}).value();
 
-  neuralNetwork.Train(input, expected, {0.5f});
+  for (size_t i = 0; i < 250; i++)
+  {
+    neuralNetwork.Train(input, expected, {0.075f});
+  }
+  
 
   auto result = neuralNetwork.RunForwardPass(input);
 

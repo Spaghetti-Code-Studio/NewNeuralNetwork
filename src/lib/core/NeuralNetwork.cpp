@@ -1,4 +1,5 @@
 #include "NeuralNetwork.hpp"
+#include "DenseLayer.hpp"
 
 namespace nnn {
 
@@ -27,12 +28,9 @@ namespace nnn {
     }
 
     for (const auto& layer : m_layers) {
-      // TODO: make this cleaner and nicer
-      auto copyOfWeights = layer->GetWeights();
-      copyOfWeights *= params.learningRate;
-      auto copyOfBiases = layer->GetBiases();
-      copyOfBiases *= params.learningRate;
-      layer->Update(copyOfWeights, copyOfBiases);
+      FloatMatrix newWeights = layer->GetWeights() - (layer->GetWightsGradient() * params.learningRate);
+      FloatMatrix newBiases = layer->GetBiases() - (layer->GetBiasesGradient() * params.learningRate);
+      layer->Update(newWeights, newBiases);
     }
   }
 

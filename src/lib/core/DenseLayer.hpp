@@ -27,8 +27,8 @@ namespace nnn {
 
     const FloatMatrix& GetWeights() const override;
     const FloatMatrix& GetBiases() const override;
-    inline FloatMatrix GetGradientWeights() const { return m_gradientWeigths; }
-    inline FloatMatrix GetGradientBiases() const { return m_gradientBias; }
+    inline const FloatMatrix& GetWightsGradient() const override { return m_gradientWeigths; }
+    inline const FloatMatrix& GetBiasesGradient() const override { return m_gradientBias; }
 
    private:
     size_t m_inputSize;

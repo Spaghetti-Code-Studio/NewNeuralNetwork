@@ -4,6 +4,7 @@ add_library(NewNeuralNetwork
     "math/ColumnMajorFloatMatrixIterator.cpp"
     "core/DenseLayer.cpp"
     "core/ReLU.cpp"
+    "core/LeakyReLU.cpp"
     "core/NeuralNetwork.cpp"
 )
 
