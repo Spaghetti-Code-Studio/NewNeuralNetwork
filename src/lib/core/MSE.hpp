@@ -7,6 +7,6 @@ namespace nnn {
   class MSE : public ILossFunction {
    public:
     MSE() = default;
-    FloatMatrix Loss(const FloatMatrix& acutal, cost FloatMatrix& expected) const override;
+    FloatMatrix Loss(const FloatMatrix& actual, const FloatMatrix& expected) override;
   };
 }  // namespace nnn
