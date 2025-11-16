@@ -6,6 +6,10 @@ add_library(NewNeuralNetwork
     "core/ReLU.cpp"
     "core/LeakyReLU.cpp"
     "core/NeuralNetwork.cpp"
+    "core/MSE.cpp"
+    "core/SoftmaxDenseOutputLayer.cpp"
+    "core/Softmax.cpp"
+    "core/CrossEntropyWithSoftmax.cpp"
 )
 
 target_include_directories(NewNeuralNetwork
