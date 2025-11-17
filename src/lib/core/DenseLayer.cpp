@@ -4,8 +4,11 @@
 
 namespace nnn {
 
-  DenseLayer::DenseLayer(
-      size_t batchSize, size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction, IWeightInitializer& initializer)
+  DenseLayer::DenseLayer(size_t batchSize,
+      size_t inputSize,
+      size_t outputSize,
+      std::unique_ptr<IActivationFunction>&& activationFunction,
+      IWeightInitializer& initializer)
       : m_inputSize(inputSize),
         m_outputSize(outputSize),
         m_biases(FloatMatrix::Zeroes(outputSize, 1)),
@@ -32,13 +35,14 @@ namespace nnn {
 
   {}
 
-  DenseLayer::DenseLayer(
-      size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction):
-      DenseLayer(1, inputSize, outputSize, std::move(activationFunction)) {}
+  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction)
+      : DenseLayer(1, inputSize, outputSize, std::move(activationFunction)) {}
 
-  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction, IWeightInitializer& initializer)
-      : DenseLayer(1, inputSize, outputSize, std::move(activationFunction), initializer)
-  {}
+  DenseLayer::DenseLayer(size_t inputSize,
+      size_t outputSize,
+      std::unique_ptr<IActivationFunction>&& activationFunction,
+      IWeightInitializer& initializer)
+      : DenseLayer(1, inputSize, outputSize, std::move(activationFunction), initializer) {}
 
   FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) {  //
 

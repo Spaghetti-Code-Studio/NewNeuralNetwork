@@ -277,16 +277,18 @@ TEST_CASE("2 Layer NN - Basic forward and backward pass with ReLU and SoftMax") 
 }
 
 TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") {  //
-  
+
   // intentionally testing overfitting
   auto neuralNetwork = nnn::NeuralNetwork(
       nnn::NeuralNetwork::HyperParameters(0.1f, 800, 4));  // learning rate, epochs, bach size (unused for now)
 
   auto init = nnn::NormalGlorotWeightInitializer(42);
 
-  size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 4, std::make_unique<nnn::LeakyReLU>(), init));
-  size_t l2 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 4, std::make_unique<nnn::LeakyReLU>(), init));
-  
+  size_t l1 =
+      neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 4, std::make_unique<nnn::LeakyReLU>(), init));
+  size_t l2 =
+      neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 4, std::make_unique<nnn::LeakyReLU>(), init));
+
   size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(4, 2, init));
 
   auto input = nnn::FloatMatrix::Create(2, 4, {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f}).value();
