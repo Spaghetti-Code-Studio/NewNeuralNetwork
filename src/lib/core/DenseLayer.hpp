@@ -5,6 +5,7 @@
 #include "FloatMatrix.hpp"
 #include "IActivationFunction.hpp"
 #include "ILayer.hpp"
+#include "IWeightInitializer.hpp"
 
 namespace nnn {
 
@@ -13,9 +14,10 @@ namespace nnn {
     DenseLayer(size_t batchSize,
         size_t inputSize,
         size_t outputSize,
-        std::unique_ptr<IActivationFunction>&& activationFunction);
+        std::unique_ptr<IActivationFunction>&& activationFunction,
+        IWeightInitializer& initializer);
 
-    DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction);
+    DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction, IWeightInitializer& initializer);
 
     FloatMatrix Forward(const FloatMatrix& inputVector) override;
 

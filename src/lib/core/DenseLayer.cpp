@@ -1,14 +1,15 @@
 #include "DenseLayer.hpp"
 #include "FloatMatrix.hpp"
+#include "IWeightInitializer.hpp"
 
 namespace nnn {
 
   DenseLayer::DenseLayer(
-      size_t batchSize, size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction)
+      size_t batchSize, size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction, IWeightInitializer& initializer)
       : m_inputSize(inputSize),
         m_outputSize(outputSize),
         m_biases(FloatMatrix::Zeroes(outputSize, 1)),
-        m_weights(FloatMatrix::Random(outputSize, inputSize)),
+        m_weights(initializer.Initialize(outputSize, inputSize)),
         m_activationFunction(std::move(activationFunction)),
         m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, batchSize)),
         m_lastInput(FloatMatrix::Zeroes(inputSize, batchSize)),
@@ -17,17 +18,16 @@ namespace nnn {
 
   {}
 
-  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction)
+  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction, IWeightInitializer& initializer)
       : m_inputSize(inputSize),
         m_outputSize(outputSize),
         m_biases(FloatMatrix::Zeroes(outputSize, 1)),
-        m_weights(FloatMatrix::Random(outputSize, inputSize)),
+        m_weights(initializer.Initialize(outputSize, inputSize)),
         m_activationFunction(std::move(activationFunction)),
         m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, 1)),
         m_lastInput(FloatMatrix::Zeroes(inputSize, 1)),
         m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
         m_gradientBias(FloatMatrix::Zeroes(outputSize, 1))
-
   {}
 
   FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) {  //

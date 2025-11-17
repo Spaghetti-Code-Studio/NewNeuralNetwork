@@ -3,11 +3,11 @@
 
 namespace nnn {
 
-  SoftmaxDenseOutputLayer::SoftmaxDenseOutputLayer(size_t batchSize, size_t inputSize, size_t outputSize)
-      : DenseLayer(batchSize, inputSize, outputSize, std::make_unique<Softmax>()) {}
+  SoftmaxDenseOutputLayer::SoftmaxDenseOutputLayer(size_t batchSize, size_t inputSize, size_t outputSize, IWeightInitializer& initializer)
+      : DenseLayer(batchSize, inputSize, outputSize, std::make_unique<Softmax>(), initializer) {}
 
-  SoftmaxDenseOutputLayer::SoftmaxDenseOutputLayer(size_t inputSize, size_t outputSize)
-      : DenseLayer(inputSize, outputSize, std::make_unique<Softmax>()) {}
+  SoftmaxDenseOutputLayer::SoftmaxDenseOutputLayer(size_t inputSize, size_t outputSize, IWeightInitializer& initializer)
+      : DenseLayer(inputSize, outputSize, std::make_unique<Softmax>(), initializer) {}
 
   FloatMatrix SoftmaxDenseOutputLayer::ComputeOutputGradient(const FloatMatrix& actual, const FloatMatrix& expected) {
     return m_crossEntropyLossFunction->Loss(actual, expected);

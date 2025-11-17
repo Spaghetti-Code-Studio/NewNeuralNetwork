@@ -10,6 +10,8 @@ add_library(NewNeuralNetwork
     "core/SoftmaxDenseOutputLayer.cpp"
     "core/Softmax.cpp"
     "core/CrossEntropyWithSoftmax.cpp"
+    "core/NormalHeWeightInitializer.cpp"
+    "core/NormalGlorotWeightInitializer.cpp"
 )
 
 target_include_directories(NewNeuralNetwork
