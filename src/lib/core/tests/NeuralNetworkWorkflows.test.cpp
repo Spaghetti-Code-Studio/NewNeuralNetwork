@@ -10,8 +10,13 @@
 #include "ILayer.hpp"
 #include "NeuralNetwork.hpp"
 #include "ReLU.hpp"
+#include "LeakyReLU.hpp"
 #include "Softmax.hpp"
 #include "SoftmaxDenseOutputLayer.hpp"
+#include "NormalHeWeightInitializer.hpp"
+#include "NormalGlorotWeightInitializer.hpp"
+
+#include <iostream>
 
 #include "TestableNeuralNetwork.hpp"
 
@@ -31,7 +36,7 @@ static inline LayerType* GetLayerAs(nnn::NeuralNetwork* neuralNetwork, size_t in
   return dynamic_cast<LayerType*>(baseLayer);
 }
 
-// ------------------------------------------------------------------------------------------------
+// // ------------------------------------------------------------------------------------------------
 
 TEST_CASE("1 Layer NN - Basic forward pass with ReLU") {  //
 
@@ -52,7 +57,6 @@ TEST_CASE("1 Layer NN - Basic forward pass with ReLU") {  //
 }
 
 TEST_CASE("2 Layer NN - Basic forward pass with ReLU and SoftMax") {  //
-
   auto neuralNetwork = nnn::NeuralNetwork();
   size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(3, 3, std::make_unique<nnn::ReLU>()));
   size_t l2 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(3, 3));
@@ -129,7 +133,6 @@ TEST_CASE("SoftMax Evaluation and CrossEntropy Loss") {  //
 }
 
 TEST_CASE("2 Layer NN - Forward pass XOR with ReLU") {  //
-
   auto neuralNetwork = TestableNeuralNetwork({true});
 
   size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 2, std::make_unique<nnn::ReLU>()));
@@ -212,8 +215,8 @@ TEST_CASE("2 Layer NN - Batch forward pass XOR with ReLU") {
 }
 
 TEST_CASE("2 Layer NN - Backward pass test") {  //
-
   auto neuralNetwork = TestableNeuralNetwork();
+
   size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(3, 3, std::make_unique<nnn::ReLU>()));
   size_t l2 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(3, 3));
 
@@ -274,30 +277,19 @@ TEST_CASE("2 Layer NN - Basic forward and backward pass with ReLU and SoftMax") 
 }
 
 TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") {  //
+
+  // intentionally testing overfitting
   auto neuralNetwork = nnn::NeuralNetwork(
-      nnn::NeuralNetwork::HyperParameters(0.07f, 500, 4));  // learning rate, epochs, bach size (unused for now)
+      nnn::NeuralNetwork::HyperParameters(0.1f, 800, 4));  // learning rate, epochs, bach size (unused for now)
 
-  size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 4, std::make_unique<nnn::ReLU>()));
-  size_t l2 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 4, std::make_unique<nnn::ReLU>()));
-  size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(4, 2));
+  auto init = nnn::NormalGlorotWeightInitializer(42);
 
-  auto l1Weights = nnn::FloatMatrix::Random(4, 2);
-  auto l1Biases = nnn::FloatMatrix::Random(4, 1);
+  size_t l1 =
+      neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 4, std::make_unique<nnn::LeakyReLU>(), init));
+  size_t l2 =
+      neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 4, std::make_unique<nnn::LeakyReLU>(), init));
 
-  nnn::DenseLayer* layer1 = GetLayerAs<nnn::DenseLayer>(&neuralNetwork, l1);
-  layer1->Update(l1Weights, l1Biases);
-
-  auto l2Weights = nnn::FloatMatrix::Random(4, 4);
-  auto l2Biases = nnn::FloatMatrix::Random(4, 1);
-
-  nnn::DenseLayer* layer2 = GetLayerAs<nnn::DenseLayer>(&neuralNetwork, l2);
-  layer2->Update(l2Weights, l2Biases);
-
-  auto l3Weights = nnn::FloatMatrix::Random(2, 4);
-  auto l3Biases = nnn::FloatMatrix::Random(2, 1);
-
-  nnn::SoftmaxDenseOutputLayer* layer3 = GetLayerAs<nnn::SoftmaxDenseOutputLayer>(&neuralNetwork, l3);
-  layer3->Update(l3Weights, l3Biases);
+  size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(4, 2, init));
 
   auto input = nnn::FloatMatrix::Create(2, 4, {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f}).value();
   auto expected = nnn::FloatMatrix::Create(2, 4, {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f}).value();

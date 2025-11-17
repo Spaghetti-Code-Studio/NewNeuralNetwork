@@ -3,6 +3,13 @@
 
 namespace nnn {
 
+  SoftmaxDenseOutputLayer::SoftmaxDenseOutputLayer(
+      size_t batchSize, size_t inputSize, size_t outputSize, IWeightInitializer& initializer)
+      : DenseLayer(batchSize, inputSize, outputSize, std::make_unique<Softmax>(), initializer) {}
+
+  SoftmaxDenseOutputLayer::SoftmaxDenseOutputLayer(size_t inputSize, size_t outputSize, IWeightInitializer& initializer)
+      : DenseLayer(inputSize, outputSize, std::make_unique<Softmax>(), initializer) {}
+
   SoftmaxDenseOutputLayer::SoftmaxDenseOutputLayer(size_t batchSize, size_t inputSize, size_t outputSize)
       : DenseLayer(batchSize, inputSize, outputSize, std::make_unique<Softmax>()) {}
 
