@@ -3,6 +3,7 @@
 
 #include <iomanip>
 #include <ios>
+#include <iostream>
 #include <random>
 #include <sstream>
 #include <utility>
@@ -111,6 +112,39 @@ namespace nnn {
     return *this;
   }
 
+  FloatMatrix FloatMatrix::operator-(const FloatMatrix& other) const {
+    if (m_rows != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when column count does not match.");
+    }
+
+    FloatMatrix result(m_rows, m_cols);
+
+    for (size_t row = 0; row < m_rows; ++row) {
+      for (size_t col = 0; col < m_cols; ++col) {
+        result(row, col) = (*this)(row, col) - other(row, col);
+      }
+    }
+    return result;
+  }
+
+  FloatMatrix& FloatMatrix::operator-=(const FloatMatrix& other) {
+    if (m_rows != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException("Cannot subtract matrices when column count does not match.");
+    }
+
+    for (size_t row = 0; row < m_rows; ++row) {
+      for (size_t col = 0; col < m_cols; ++col) {
+        (*this)(row, col) = (*this)(row, col) - other(row, col);
+      }
+    }
+
+    return *this;
+  }
+
   FloatMatrix FloatMatrix::operator*(const FloatMatrix& other) const {
     if (m_cols != other.m_rows) {
       throw FloatMatrixInvalidDimensionException(
@@ -177,6 +211,35 @@ namespace nnn {
     }
   }
 
+  FloatMatrix FloatMatrix::Hadamard(const FloatMatrix& other) const {  //
+
+    if (m_rows != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException(
+          "Cannot compute hadamard product for matrices when row count does not match.");
+    } else if (m_cols != other.m_cols) {
+      throw FloatMatrixInvalidDimensionException(
+          "Cannot compute hadamard product for matrices when column count does not match.");
+    }
+
+    FloatMatrix result(m_rows, m_cols);
+    for (size_t i = 0; i < m_rows; ++i) {
+      for (size_t j = 0; j < m_cols; ++j) {
+        result(i, j) = (*this)(i, j) * other(i, j);
+      }
+    }
+    return result;
+  }
+
+  FloatMatrix FloatMatrix::SumColumns(const FloatMatrix& matrix) {
+    auto result = nnn::FloatMatrix(matrix.GetRowCount(), 1);
+    for (size_t i = 0; i < matrix.GetRowCount(); i++) {
+      for (size_t j = 0; j < matrix.GetColCount(); j++) {
+        result(i, 0) += matrix(i, j);
+      }
+    }
+    return result;
+  }
+
   std::string FloatMatrix::ToString() const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(3);
@@ -193,4 +256,5 @@ namespace nnn {
     }
     return oss.str();
   }
+  void FloatMatrix::Print() const { std::cout << this->ToString() << std::endl; }
 }  // namespace nnn

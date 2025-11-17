@@ -43,6 +43,8 @@ namespace nnn {
 
     FloatMatrix operator+(const FloatMatrix& other) const;
     FloatMatrix& operator+=(const FloatMatrix& other);
+    FloatMatrix operator-(const FloatMatrix& other) const;
+    FloatMatrix& operator-=(const FloatMatrix& other);
     FloatMatrix operator*(const FloatMatrix& other) const;
     FloatMatrix operator*(float scalar) const;
     FloatMatrix& operator*=(float scalar);
@@ -51,6 +53,8 @@ namespace nnn {
     void MapInPlace(const std::function<float(float)>& func);
 
     void AddToAllCols(const FloatMatrix& vector);
+
+    FloatMatrix Hadamard(const FloatMatrix& other) const;
 
     template <typename T>
     T Aggregate(const std::function<T(float)>& func) const {  //
@@ -63,7 +67,10 @@ namespace nnn {
       return result;
     }
 
+    static FloatMatrix SumColumns(const FloatMatrix& matrix);
+
     std::string ToString() const;
+    void Print() const;
 
    private:
     FloatMatrix(size_t rows, size_t cols, const std::vector<float>& data);
