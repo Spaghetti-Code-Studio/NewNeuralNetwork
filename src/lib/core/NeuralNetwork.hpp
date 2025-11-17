@@ -1,8 +1,8 @@
 #pragma once
 
-#include <utility>
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "FloatMatrix.hpp"
@@ -18,26 +18,31 @@ namespace nnn {
    public:
     struct HyperParameters {
       float learningRate = 0.001f;
+      size_t epochs = 30;
+      size_t batchSize = 10;
+
+      HyperParameters() = default;
+      HyperParameters(float learningRate) : learningRate(learningRate) {}
+      HyperParameters(float learningRate, size_t epochs, size_t batchSize)
+          : learningRate(learningRate), epochs(epochs), batchSize(batchSize) {}
     };
 
     NeuralNetwork() = default;
+    NeuralNetwork(HyperParameters params) : m_params(params) {}
 
     size_t AddHiddenLayer(std::unique_ptr<ILayer>&& layer);
     size_t SetOutputLayer(std::unique_ptr<IOutputLayer>&& layer);
     ILayer* GetLayer(size_t index);
 
     FloatMatrix RunForwardPass(FloatMatrix input);
-
-    // TODO: implement this
-    FloatMatrix RunBackwardPass(FloatMatrix input);
-
-    // TODO: this will take epochs number and will do the automatic training on batches (we must take whole training
-    // dataset here)
-    void Train(const FloatMatrix& input, const FloatMatrix& expected, HyperParameters params);
+    void RunBackwardPass(FloatMatrix gradient);
+    void UpdateWeights();
+    void Train(const FloatMatrix& inputData, const FloatMatrix& expectedOutput);
 
    protected:
     std::unique_ptr<IOutputLayer> m_outputLayer;
     std::vector<std::unique_ptr<ILayer>> m_hiddenLayers;
+    HyperParameters m_params = HyperParameters();
 
     virtual void ForEachLayerForwardImpl(const std::function<void(ILayer&)>& func) {
       for (auto& layer : m_hiddenLayers) {

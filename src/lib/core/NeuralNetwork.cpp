@@ -13,38 +13,33 @@ namespace nnn {
   }
 
   FloatMatrix NeuralNetwork::RunForwardPass(FloatMatrix input) {
-    ForEachLayer([&](ILayer& layer) { input = layer.Forward(input); });
+    ForEachLayerForward([&](ILayer& layer) { input = layer.Forward(input); });
     return input;
   }
 
-  // TODO: implement this
-  FloatMatrix NeuralNetwork::RunBackwardPass(FloatMatrix input) {
-    return FloatMatrix::Identity(4);  // tmp
+  void NeuralNetwork::RunBackwardPass(FloatMatrix gradient) {
+    ForEachLayerBackward([&](ILayer& layer) { gradient = layer.Backward(gradient); });
   }
 
-  void NeuralNetwork::Train(const FloatMatrix& input, const FloatMatrix& expected, HyperParameters params) {  //
-
-    auto actual = RunForwardPass(input);
-
-    FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, expected);
-
-    // TODO: use backward ForEachLayer here
-    gradient = m_outputLayer->Backward(gradient);
-    for (int i = (int)m_hiddenLayers.size() - 1; i >= 0; --i) {
-      gradient = m_hiddenLayers[i]->Backward(gradient);
-    }
-
-    // TODO: use backward ForEachLayer here
-    {
-      FloatMatrix newWeights = m_outputLayer->GetWeights() - (m_outputLayer->GetWightsGradient() * params.learningRate);
-      FloatMatrix newBiases = m_outputLayer->GetBiases() - (m_outputLayer->GetBiasesGradient() * params.learningRate);
-      m_outputLayer->Update(newWeights, newBiases);
-    }
-    ForEachLayer([&](ILayer& layer) {
-      FloatMatrix newWeights = layer.GetWeights() - (layer.GetWightsGradient() * params.learningRate);
-      FloatMatrix newBiases = layer.GetBiases() - (layer.GetBiasesGradient() * params.learningRate);
+  void NeuralNetwork::UpdateWeights() {
+    ForEachLayerForward([&](ILayer& layer) {
+      FloatMatrix newWeights = layer.GetWeights() - (layer.GetWightsGradient() * m_params.learningRate);
+      FloatMatrix newBiases = layer.GetBiases() - (layer.GetBiasesGradient() * m_params.learningRate);
       layer.Update(newWeights, newBiases);
     });
+  }
+
+  // TODO: implement this method
+  void NeuralNetwork::Train(const FloatMatrix& input, const FloatMatrix& expected) {  //
+
+    for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
+      // TODO: FloatMatrix should support viewing of certain part of dataset
+    }
+
+    FloatMatrix actual = RunForwardPass(input);
+    FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, expected);
+    RunBackwardPass(gradient);
+    UpdateWeights();
   }
 
   ILayer* NeuralNetwork::GetLayer(size_t index) {  //
