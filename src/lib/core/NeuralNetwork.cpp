@@ -29,17 +29,15 @@ namespace nnn {
     });
   }
 
-  // TODO: implement this method
   void NeuralNetwork::Train(const FloatMatrix& input, const FloatMatrix& expected) {  //
 
     for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
-      // TODO: FloatMatrix should support viewing of certain part of dataset
+      // TODO: handle batches
+      FloatMatrix actual = RunForwardPass(input);
+      FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, expected);
+      RunBackwardPass(gradient);
+      UpdateWeights();
     }
-
-    FloatMatrix actual = RunForwardPass(input);
-    FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, expected);
-    RunBackwardPass(gradient);
-    UpdateWeights();
   }
 
   ILayer* NeuralNetwork::GetLayer(size_t index) {  //
