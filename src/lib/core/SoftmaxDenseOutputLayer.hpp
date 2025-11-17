@@ -15,8 +15,6 @@ namespace nnn {
 
     FloatMatrix ComputeOutputGradient(const FloatMatrix& actual, const FloatMatrix& expected) override;
 
-    // TODO: should have this method DenseLayer marked as virtual so I can override it here?
-    // TODO: must check if this even works
     FloatMatrix Backward(const FloatMatrix& gradient) override;
 
    private:

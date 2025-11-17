@@ -14,15 +14,20 @@ namespace nnn {
   }
 
   FloatMatrix SoftmaxDenseOutputLayer::Backward(const FloatMatrix& gradient) {  //
-    // TODO: check this code
-    m_lastInput.Transpose();
-    m_gradientWeigths = gradient * m_lastInput;
-    m_gradientBias = FloatMatrix::SumColumns(gradient);
 
-    m_weights.Transpose();  // cannot transpose gradient const gradient reference here so I transpose weights
-    auto nextGradient = gradient * m_weights;
+    // Gradient here is already (actual - expecetd) from cross-entropy loss function.
+    // No need to call m_activationFunction->Derivative().
+
+    auto hnc = gradient;
+
+    m_lastInput.Transpose();
+    m_gradientWeigths = hnc * m_lastInput;
+    m_gradientBias = FloatMatrix::SumColumns(hnc);
+
+    hnc.Transpose();
+    auto nextGradient = hnc * m_weights;
     nextGradient.Transpose();
-    m_weights.Transpose();
+
     return nextGradient;
   }
 }  // namespace nnn
