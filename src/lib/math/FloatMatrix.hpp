@@ -70,6 +70,7 @@ namespace nnn {
     static FloatMatrix SumColumns(const FloatMatrix& matrix);
 
     std::string ToString() const;
+    void Print() const;
 
    private:
     FloatMatrix(size_t rows, size_t cols, const std::vector<float>& data);

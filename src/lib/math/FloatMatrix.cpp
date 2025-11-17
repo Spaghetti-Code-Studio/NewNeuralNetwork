@@ -3,6 +3,7 @@
 
 #include <iomanip>
 #include <ios>
+#include <iostream>
 #include <random>
 #include <sstream>
 #include <utility>
@@ -255,4 +256,5 @@ namespace nnn {
     }
     return oss.str();
   }
+  void FloatMatrix::Print() const { std::cout << this->ToString() << std::endl; }
 }  // namespace nnn
