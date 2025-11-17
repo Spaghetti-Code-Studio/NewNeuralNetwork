@@ -12,7 +12,7 @@ namespace nnn {
    public:
     NormalHeWeightInitializer();
     NormalHeWeightInitializer(unsigned int seed);
-    FloatMatrix Initialize(size_t n, size_t m) override;
+    FloatMatrix Initialize(size_t row, size_t col) override;
    private:
     std::mt19937 m_rng;
   };
