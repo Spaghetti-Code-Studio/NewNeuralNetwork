@@ -23,7 +23,7 @@
  * @tparam LayerType type of the layer to retrieve
  * @param neuralNetwork neural network
  * @param index index of the layer in the network
- * @returns poiter to the layer or null pointer if the index is wrong or the type does not match
+ * @returns pointer to the layer or null pointer if the index is wrong or the type does not match
  */
 template <typename LayerType>
 static inline LayerType* GetLayerAs(nnn::NeuralNetwork* neuralNetwork, size_t index) {
@@ -273,61 +273,52 @@ TEST_CASE("2 Layer NN - Basic forward and backward pass with ReLU and SoftMax") 
   }
 }
 
-// TEST_CASE("2 Layer NN - Train XOR with ReLU") {
-//   auto neuralNetwork = nnn::NeuralNetwork();
-//
-//   size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 2, 2,
-//   std::make_unique<nnn::ReLU>())); size_t l2 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 2,
-//   2, std::make_unique<nnn::ReLU>())); size_t l3 =
-//       neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 2, 1, std::make_unique<nnn::LeakyReLU>()));
-//
-//   auto weights1 = nnn::FloatMatrix::Random(2, 2);
-//   auto biases1 = nnn::FloatMatrix::Random(1, 2);
-//   biases1.Transpose();
-//
-//   nnn::ILayer* baseLayer1 = neuralNetwork.GetLayer(l1);
-//   nnn::DenseLayer* denseLayer1 = dynamic_cast<nnn::DenseLayer*>(baseLayer1);
-//   denseLayer1->Update(weights1, biases1);
-//
-//   auto weights2 = nnn::FloatMatrix::Random(2, 2);
-//   auto biases2 = nnn::FloatMatrix::Random(1, 2);
-//   biases2.Transpose();
-//
-//   nnn::ILayer* baseLayer2 = neuralNetwork.GetLayer(l2);
-//   nnn::DenseLayer* denseLayer2 = dynamic_cast<nnn::DenseLayer*>(baseLayer2);
-//   denseLayer2->Update(weights2, biases2);
-//
-//   auto weights3 = nnn::FloatMatrix::Random(1, 2);
-//   auto biases3 = nnn::FloatMatrix::Random(1, 1);
-//
-//   nnn::ILayer* baseLayer3 = neuralNetwork.GetLayer(l3);
-//   nnn::DenseLayer* denseLayer3 = dynamic_cast<nnn::DenseLayer*>(baseLayer3);
-//   denseLayer3->Update(weights3, biases3);
-//
-//   // compute all combinations at once
-//   auto input = nnn::FloatMatrix::Create(2, 4,
-//       {
-//           0.0f,
-//           0.0f,
-//           1.0f,
-//           1.0f,
-//           0.0f,
-//           1.0f,
-//           0.0f,
-//           1.0f,
-//       })
-//                    .value();
-//
-//   auto expected = nnn::FloatMatrix::Create(1, 4, {0.0f, 1.0f, 1.0f, 0.0f}).value();
-//
-//   for (size_t i = 0; i < 250; i++) {
-//     neuralNetwork.Train(input, expected, {0.075f});
-//   }
-//
-//   auto result = neuralNetwork.RunForwardPass(input);
-//
-//   CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs(0.0f, 0.001));
-//   CHECK_THAT(result(0, 1), Catch::Matchers::WithinAbs(1.0f, 0.001));
-//   CHECK_THAT(result(0, 2), Catch::Matchers::WithinAbs(1.0f, 0.001));
-//   CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs(0.0f, 0.001));
-// }
+TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") {  //
+  auto neuralNetwork = nnn::NeuralNetwork(
+      nnn::NeuralNetwork::HyperParameters(0.07f, 500, 4));  // learning rate, epochs, bach size (unused for now)
+
+  size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 4, std::make_unique<nnn::ReLU>()));
+  size_t l2 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(4, 4, std::make_unique<nnn::ReLU>()));
+  size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(4, 2));
+
+  auto l1Weights = nnn::FloatMatrix::Random(4, 2);
+  auto l1Biases = nnn::FloatMatrix::Random(4, 1);
+
+  nnn::DenseLayer* layer1 = GetLayerAs<nnn::DenseLayer>(&neuralNetwork, l1);
+  layer1->Update(l1Weights, l1Biases);
+
+  auto l2Weights = nnn::FloatMatrix::Random(4, 4);
+  auto l2Biases = nnn::FloatMatrix::Random(4, 1);
+
+  nnn::DenseLayer* layer2 = GetLayerAs<nnn::DenseLayer>(&neuralNetwork, l2);
+  layer2->Update(l2Weights, l2Biases);
+
+  auto l3Weights = nnn::FloatMatrix::Random(2, 4);
+  auto l3Biases = nnn::FloatMatrix::Random(2, 1);
+
+  nnn::SoftmaxDenseOutputLayer* layer3 = GetLayerAs<nnn::SoftmaxDenseOutputLayer>(&neuralNetwork, l3);
+  layer3->Update(l3Weights, l3Biases);
+
+  auto input = nnn::FloatMatrix::Create(2, 4, {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f}).value();
+  auto expected = nnn::FloatMatrix::Create(2, 4, {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f}).value();
+
+  neuralNetwork.Train(input, expected);
+
+  auto result = neuralNetwork.RunForwardPass(input);
+
+  // 99% confidence XOR(0,0) is 0
+  CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs(1.0f, 0.01));
+  CHECK_THAT(result(1, 0), Catch::Matchers::WithinAbs(0.0f, 0.01));
+
+  // 99% confidence XOR(0,1) is 1
+  CHECK_THAT(result(0, 1), Catch::Matchers::WithinAbs(0.0f, 0.01));
+  CHECK_THAT(result(1, 1), Catch::Matchers::WithinAbs(1.0f, 0.01));
+
+  // 99% confidence XOR(1,0) is 1
+  CHECK_THAT(result(0, 2), Catch::Matchers::WithinAbs(0.0f, 0.01));
+  CHECK_THAT(result(1, 2), Catch::Matchers::WithinAbs(1.0f, 0.01));
+
+  // 99% confidence XOR(1,1) is 0
+  CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs(1.0f, 0.01));
+  CHECK_THAT(result(1, 3), Catch::Matchers::WithinAbs(0.0f, 0.01));
+}
