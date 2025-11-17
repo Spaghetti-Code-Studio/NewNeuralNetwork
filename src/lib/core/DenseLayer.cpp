@@ -18,16 +18,26 @@ namespace nnn {
 
   {}
 
-  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction, IWeightInitializer& initializer)
+  DenseLayer::DenseLayer(
+      size_t batchSize, size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction)
       : m_inputSize(inputSize),
         m_outputSize(outputSize),
         m_biases(FloatMatrix::Zeroes(outputSize, 1)),
-        m_weights(initializer.Initialize(outputSize, inputSize)),
+        m_weights(FloatMatrix::Ones(outputSize, inputSize)),
         m_activationFunction(std::move(activationFunction)),
-        m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, 1)),
-        m_lastInput(FloatMatrix::Zeroes(inputSize, 1)),
+        m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, batchSize)),
+        m_lastInput(FloatMatrix::Zeroes(inputSize, batchSize)),
         m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
         m_gradientBias(FloatMatrix::Zeroes(outputSize, 1))
+
+  {}
+
+  DenseLayer::DenseLayer(
+      size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction):
+      DenseLayer(1, inputSize, outputSize, std::move(activationFunction)) {}
+
+  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction, IWeightInitializer& initializer)
+      : DenseLayer(1, inputSize, outputSize, std::move(activationFunction), initializer)
   {}
 
   FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) {  //
