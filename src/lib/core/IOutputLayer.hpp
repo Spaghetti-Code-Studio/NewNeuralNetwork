@@ -5,7 +5,7 @@
 
 namespace nnn {
 
-  class IOutputLayer : public ILayer {
+  class IOutputLayer : public virtual ILayer {
    public:
     virtual ~IOutputLayer() = 0;
 

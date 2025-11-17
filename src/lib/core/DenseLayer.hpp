@@ -8,7 +8,7 @@
 
 namespace nnn {
 
-  class DenseLayer : public ILayer {
+  class DenseLayer : public virtual ILayer {
    public:
     DenseLayer(size_t batchSize,
         size_t inputSize,
@@ -16,6 +16,7 @@ namespace nnn {
         std::unique_ptr<IActivationFunction>&& activationFunction);
 
     DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction);
+
     FloatMatrix Forward(const FloatMatrix& inputVector) override;
 
     /**
