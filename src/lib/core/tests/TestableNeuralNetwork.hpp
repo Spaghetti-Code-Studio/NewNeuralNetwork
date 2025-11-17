@@ -3,6 +3,7 @@
 #include <functional>
 #include <stdexcept>
 
+#include "ILayer.hpp"
 #include "NeuralNetwork.hpp"
 
 /**
@@ -16,9 +17,13 @@ class TestableNeuralNetwork : public nnn::NeuralNetwork {
   };
 
   TestableNeuralNetwork(Parameters params) : m_params(params) {}
+  TestableNeuralNetwork() : m_params(Parameters()) {}
+
+  void ForEachLayerForward(const std::function<void(nnn::ILayer&)>& func) { ForEachLayerForwardImpl(func); }
+  void ForEachLayerBackward(const std::function<void(nnn::ILayer&)>& func) { ForEachLayerBackwardImpl(func); }
 
  protected:
-  void ForEachLayerImpl(const std::function<void(nnn::ILayer&)>& func) override {
+  void ForEachLayerForwardImpl(const std::function<void(nnn::ILayer&)>& func) override {
     for (auto& layer : m_hiddenLayers) {
       func(*layer);
     }
@@ -31,7 +36,7 @@ class TestableNeuralNetwork : public nnn::NeuralNetwork {
     }
   }
 
-  void ForEachLayerImpl(const std::function<void(const nnn::ILayer&)>& func) const override {
+  void ForEachLayerForwardImpl(const std::function<void(const nnn::ILayer&)>& func) const override {
     for (const auto& layer : m_hiddenLayers) {
       func(*layer);
     }

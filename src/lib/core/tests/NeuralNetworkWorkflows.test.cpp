@@ -119,6 +119,27 @@ TEST_CASE("2 Layer NN - Batch forward pass XOR with ReLU") {
   CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs(0.0f, 0.001));
 }
 
+TEST_CASE("2 Layer NN - Backward pass test") {  //
+
+  auto neuralNetwork = TestableNeuralNetwork();
+  size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(3, 3, std::make_unique<nnn::ReLU>()));
+  size_t l2 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(3, 3));
+
+  nnn::DenseLayer* layer1 = GetLayerAs<nnn::DenseLayer>(&neuralNetwork, l1);
+  nnn::SoftmaxDenseOutputLayer* layer2 = GetLayerAs<nnn::SoftmaxDenseOutputLayer>(&neuralNetwork, l2);
+
+  size_t index = 0;
+  neuralNetwork.ForEachLayerBackward([&](nnn::ILayer& layer) {
+    if (index == 0) {
+      CHECK(&layer == static_cast<nnn::ILayer*>(layer2));
+    } else if (index == 1) {
+      CHECK(&layer == static_cast<nnn::ILayer*>(layer1));
+    }
+    index++;
+  });
+
+  CHECK(index == 2);
+}
 // TEST_CASE("2 Layer NN - Train XOR with ReLU") {
 //   auto neuralNetwork = nnn::NeuralNetwork();
 //
