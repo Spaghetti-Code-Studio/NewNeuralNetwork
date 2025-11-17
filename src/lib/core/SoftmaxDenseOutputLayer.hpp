@@ -11,6 +11,7 @@ namespace nnn {
   class SoftmaxDenseOutputLayer : public DenseLayer, IOutputLayer {
    public:
     SoftmaxDenseOutputLayer(size_t batchSize, size_t inputSize, size_t outputSize);
+    SoftmaxDenseOutputLayer(size_t inputSize, size_t outputSize);
 
     FloatMatrix ComputeOutputGradient(const FloatMatrix& actual, const FloatMatrix& expected) override;
 
