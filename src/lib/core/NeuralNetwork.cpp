@@ -29,14 +29,18 @@ namespace nnn {
     });
   }
 
-  void NeuralNetwork::Train(const FloatMatrix& input, const FloatMatrix& expected) {  //
+  void NeuralNetwork::Train(TrainingDataset& trainingDataset) {  //
 
     for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
-      // TODO: handle batches
-      FloatMatrix actual = RunForwardPass(input);
-      FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, expected);
-      RunBackwardPass(gradient);
-      UpdateWeights();
+      while (trainingDataset.HasNextBatch()) {
+        auto input = trainingDataset.GetNextBatch();
+        FloatMatrix actual = RunForwardPass(input.features);
+        FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, input.labels);
+        RunBackwardPass(gradient);
+        UpdateWeights();
+      }
+      trainingDataset.Reset();
+      // TODO: run validation
     }
   }
 

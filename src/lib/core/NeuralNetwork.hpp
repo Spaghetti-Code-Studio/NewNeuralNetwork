@@ -8,6 +8,7 @@
 #include "FloatMatrix.hpp"
 #include "ILayer.hpp"
 #include "IOutputLayer.hpp"
+#include "TrainingDataset.hpp"
 
 namespace nnn {
   /**
@@ -35,7 +36,7 @@ namespace nnn {
     FloatMatrix RunForwardPass(FloatMatrix input);
     void RunBackwardPass(FloatMatrix gradient);
     void UpdateWeights();
-    void Train(const FloatMatrix& inputData, const FloatMatrix& expectedOutput);
+    void Train(TrainingDataset& trainingDataset);
 
    protected:
     std::unique_ptr<IOutputLayer> m_outputLayer;
