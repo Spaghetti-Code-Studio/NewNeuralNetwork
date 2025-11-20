@@ -19,12 +19,10 @@ namespace nnn {
     struct HyperParameters {
       float learningRate = 0.001f;
       size_t epochs = 30;
-      size_t batchSize = 10;
 
       HyperParameters() = default;
       HyperParameters(float learningRate) : learningRate(learningRate) {}
-      HyperParameters(float learningRate, size_t epochs, size_t batchSize)
-          : learningRate(learningRate), epochs(epochs), batchSize(batchSize) {}
+      HyperParameters(float learningRate, size_t epochs) : learningRate(learningRate), epochs(epochs) {}
     };
 
     NeuralNetwork() = default;
