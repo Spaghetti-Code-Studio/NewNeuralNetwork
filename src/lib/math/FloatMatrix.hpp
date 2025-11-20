@@ -40,6 +40,7 @@ namespace nnn {
 
     float* Data();
     const float* Data() const;
+    FloatMatrix GetColumns(size_t begin, size_t end) const;
 
     FloatMatrix operator+(const FloatMatrix& other) const;
     FloatMatrix& operator+=(const FloatMatrix& other);

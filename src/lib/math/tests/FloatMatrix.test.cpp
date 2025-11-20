@@ -539,3 +539,21 @@ TEST_CASE("Matrix column sum") {
   CHECK(result(0, 0) == 3);
   CHECK(result(1, 0) == 7);
 }
+
+TEST_CASE("Copy columns") {
+  auto matrix = nnn::FloatMatrix::Create(2, 4, {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f}).value();
+  nnn::FloatMatrix columns = matrix.GetColumns(1, 2);
+
+  CHECK(columns(0, 0) == 2);
+  CHECK(columns(0, 1) == 3);
+  CHECK(columns(1, 0) == 6);
+  CHECK(columns(1, 1) == 7);
+
+  matrix.Transpose();
+
+  columns = matrix.GetColumns(0, 0);
+  CHECK(columns(0, 0) == 1);
+  CHECK(columns(1, 0) == 2);
+  CHECK(columns(2, 0) == 3);
+  CHECK(columns(3, 0) == 4);
+}
