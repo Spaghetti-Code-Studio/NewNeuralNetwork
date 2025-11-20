@@ -12,6 +12,7 @@ add_library(NewNeuralNetwork
     "core/CrossEntropyWithSoftmax.cpp"
     "core/NormalHeWeightInitializer.cpp"
     "core/NormalGlorotWeightInitializer.cpp"
+    "core/TrainingDataset.cpp"
 )
 
 target_include_directories(NewNeuralNetwork
