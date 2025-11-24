@@ -26,8 +26,11 @@ namespace nnn {
 
     TrainingBatch GetNextBatch();
     bool HasNextBatch() const;
+    bool HasValidationDataset() const {return m_params.validationSetFraction != 0.0f;}
+
     void Reset();
-    const FloatMatrix& GetValidationDataset() const;
+    const FloatMatrix& GetValidationFeatures() const;
+    const FloatMatrix& GetValidationLabels() const;
 
    private:
     std::shared_ptr<const FloatMatrix> m_data;

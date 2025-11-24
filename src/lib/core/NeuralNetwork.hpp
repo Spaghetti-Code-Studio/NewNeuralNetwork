@@ -36,7 +36,12 @@ namespace nnn {
     FloatMatrix RunForwardPass(FloatMatrix input);
     void RunBackwardPass(FloatMatrix gradient);
     void UpdateWeights();
-    void Train(TrainingDataset& trainingDataset);
+
+    struct Statistics {
+      std::vector<float> losses;
+    };
+
+    Statistics Train(TrainingDataset& trainingDataset);
 
    protected:
     std::unique_ptr<IOutputLayer> m_outputLayer;

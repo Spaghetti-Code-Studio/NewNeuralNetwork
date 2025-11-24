@@ -1,5 +1,3 @@
-#pragma once
-
 #include "TrainingDataset.hpp"
 
 namespace nnn {
@@ -29,9 +27,13 @@ namespace nnn {
 
   bool TrainingDataset::HasNextBatch() const { return m_trainingBatchIndex < m_trainingBatchCount; }
 
-  const FloatMatrix& TrainingDataset::GetValidationDataset() const {
-    static FloatMatrix validationDataset = m_data->GetColumns(m_trainingDatasetSize - 1, m_data->GetColCount() - 1);
-    return validationDataset;
+  const FloatMatrix& TrainingDataset::GetValidationFeatures() const {
+    static FloatMatrix validationFeatures = m_data->GetColumns(m_trainingDatasetSize - 1, m_data->GetColCount() - 1);
+    return validationFeatures;
+  }
+  const FloatMatrix& TrainingDataset::GetValidationLabels() const {
+    static FloatMatrix validationLabels = m_labels->GetColumns(m_trainingDatasetSize - 1, m_data->GetColCount() - 1);
+    return validationLabels;
   }
   void TrainingDataset::Reset() { m_trainingBatchIndex = 0; }
 }  // namespace nnn
