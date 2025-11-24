@@ -33,7 +33,7 @@ namespace nnn {
   NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset) {  //
 
     auto losses = std::vector<float>();
-    losses.reserve(m_params.epochs); 
+    losses.reserve(m_params.epochs);
 
     for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
       while (trainingDataset.HasNextBatch()) {
@@ -48,15 +48,15 @@ namespace nnn {
       if (trainingDataset.HasValidationDataset()) {
         auto actual = RunForwardPass(trainingDataset.GetValidationFeatures());
 
-        actual.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); }); // clip just in case
+        actual.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });  // clip just in case
         actual.MapInPlace([](float x) { return std::log(x); });
 
         auto loss = trainingDataset.GetValidationLabels().Hadamard(actual);
         loss.Transpose();
         auto flat = FloatMatrix::SumColumns(loss);
         flat.Transpose();
-        auto total = FloatMatrix::SumColumns(flat); 
-        losses.push_back(-total(0,0) / loss.GetRowCount());
+        auto total = FloatMatrix::SumColumns(flat);
+        losses.push_back(-total(0, 0) / loss.GetRowCount());
       }
 
       trainingDataset.Reset();

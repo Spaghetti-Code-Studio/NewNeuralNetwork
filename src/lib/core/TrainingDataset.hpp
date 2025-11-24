@@ -26,7 +26,7 @@ namespace nnn {
 
     TrainingBatch GetNextBatch();
     bool HasNextBatch() const;
-    bool HasValidationDataset() const {return m_params.validationSetFraction != 0.0f;}
+    bool HasValidationDataset() const { return m_params.validationSetFraction != 0.0f; }
 
     void Reset();
     const FloatMatrix& GetValidationFeatures() const;
