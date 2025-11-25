@@ -32,6 +32,9 @@ namespace nnn {
     const FloatMatrix& GetValidationFeatures() const;
     const FloatMatrix& GetValidationLabels() const;
 
+    const FloatMatrix& GetTrainingFeatures() const;
+    const FloatMatrix& GetTrainingLabels() const;
+
    private:
     std::shared_ptr<const FloatMatrix> m_data;
     std::shared_ptr<const FloatMatrix> m_labels;
