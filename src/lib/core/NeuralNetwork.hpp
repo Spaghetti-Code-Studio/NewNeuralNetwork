@@ -38,7 +38,8 @@ namespace nnn {
     void UpdateWeights();
 
     struct Statistics {
-      std::vector<float> losses;
+      std::vector<float> trainingLosses;
+      std::vector<float> validationLosses;
     };
 
     Statistics Train(TrainingDataset& trainingDataset);

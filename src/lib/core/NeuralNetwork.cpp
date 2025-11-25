@@ -1,5 +1,6 @@
 #include "NeuralNetwork.hpp"
 #include <cmath>
+#include <assert.h>
 
 namespace nnn {
 
@@ -26,42 +27,63 @@ namespace nnn {
     ForEachLayerForward([&](ILayer& layer) {
       FloatMatrix newWeights = layer.GetWeights() - (layer.GetWightsGradient() * m_params.learningRate);
       FloatMatrix newBiases = layer.GetBiases() - (layer.GetBiasesGradient() * m_params.learningRate);
+
+      for (size_t i = 0; i < newWeights.GetRowCount(); i++) {
+        for (size_t j = 0; j < newWeights.GetColCount(); j++) {
+          assert(std::abs(newWeights(i, j)) < 99999 && "weight seems to be exploding");  // REMOVE THIS LATER
+        }
+      }
       layer.Update(newWeights, newBiases);
     });
   }
 
-  NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset) {  //
-
-    auto losses = std::vector<float>();
-    losses.reserve(m_params.epochs);
+  NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset) {
+    auto lossesValidation = std::vector<float>();
+    auto lossesTraining = std::vector<float>();
+    lossesValidation.reserve(m_params.epochs);
+    lossesTraining.reserve(m_params.epochs);
 
     for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
+
       while (trainingDataset.HasNextBatch()) {
         auto input = trainingDataset.GetNextBatch();
         FloatMatrix actual = RunForwardPass(input.features);
         FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, input.labels);
-
+        gradient.MapInPlace([input](float x) { return x / input.features.GetColCount(); });
         RunBackwardPass(gradient);
         UpdateWeights();
       }
 
+      FloatMatrix allTrainFeatures = trainingDataset.GetTrainingFeatures();
+      FloatMatrix allTrainLabels = trainingDataset.GetTrainingLabels();
+      FloatMatrix trainPredictions = RunForwardPass(allTrainFeatures);
+
+      trainPredictions.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
+      trainPredictions.MapInPlace([](float x) { return std::log(x); });
+      
+      auto trainLoss = allTrainLabels.Hadamard(trainPredictions);
+      trainLoss.Transpose();
+      auto trainFlat = FloatMatrix::SumColumns(trainLoss);
+      trainFlat.Transpose();
+      auto trainTotal = FloatMatrix::SumColumns(trainFlat);
+      lossesTraining.push_back(-trainTotal(0, 0) / trainLoss.GetRowCount());
+
       if (trainingDataset.HasValidationDataset()) {
         auto actual = RunForwardPass(trainingDataset.GetValidationFeatures());
-
-        actual.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });  // clip just in case
+        actual.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
         actual.MapInPlace([](float x) { return std::log(x); });
-
         auto loss = trainingDataset.GetValidationLabels().Hadamard(actual);
         loss.Transpose();
         auto flat = FloatMatrix::SumColumns(loss);
         flat.Transpose();
         auto total = FloatMatrix::SumColumns(flat);
-        losses.push_back(-total(0, 0) / loss.GetRowCount());
+        lossesValidation.push_back(-total(0, 0) / loss.GetRowCount());
       }
 
       trainingDataset.Reset();
     }
-    return NeuralNetwork::Statistics(losses);
+
+    return NeuralNetwork::Statistics(lossesTraining, lossesValidation);
   }
 
   ILayer* NeuralNetwork::GetLayer(size_t index) {  //
