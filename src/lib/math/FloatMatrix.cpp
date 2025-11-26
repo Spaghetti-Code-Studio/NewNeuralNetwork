@@ -79,6 +79,17 @@ namespace nnn {
 
   const float* FloatMatrix::Data() const { return m_data.data(); }
 
+  FloatMatrix FloatMatrix::GetColumns(size_t begin, size_t end) const {
+    auto result = FloatMatrix(GetRowCount(), end - begin + 1);
+    for (size_t r = 0; r < GetRowCount(); ++r) {
+      for (size_t c = begin; c <= end; ++c) {
+        result(r, c - begin) = (*this)(r, c);
+      }
+    }
+
+    return result;
+  }
+
   FloatMatrix FloatMatrix::operator+(const FloatMatrix& other) const {
     if (m_rows != other.m_rows) {
       throw FloatMatrixInvalidDimensionException("Cannot add matrices when row count does not match.");

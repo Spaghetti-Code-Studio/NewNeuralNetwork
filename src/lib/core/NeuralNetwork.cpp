@@ -1,4 +1,6 @@
 #include "NeuralNetwork.hpp"
+#include <cmath>
+#include <assert.h>
 
 namespace nnn {
 
@@ -25,19 +27,65 @@ namespace nnn {
     ForEachLayerForward([&](ILayer& layer) {
       FloatMatrix newWeights = layer.GetWeights() - (layer.GetWightsGradient() * m_params.learningRate);
       FloatMatrix newBiases = layer.GetBiases() - (layer.GetBiasesGradient() * m_params.learningRate);
+
+      for (size_t i = 0; i < newWeights.GetRowCount(); i++) {
+        for (size_t j = 0; j < newWeights.GetColCount(); j++) {
+          assert(std::abs(newWeights(i, j)) < 99999 && "The weight seems to be exploding!");  // TODO: remove this later
+        }
+      }
       layer.Update(newWeights, newBiases);
     });
   }
 
-  void NeuralNetwork::Train(const FloatMatrix& input, const FloatMatrix& expected) {  //
+  NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset) {  //
+
+    auto lossesValidation = std::vector<float>();
+    auto lossesTraining = std::vector<float>();
+    lossesValidation.reserve(m_params.epochs);
+    lossesTraining.reserve(m_params.epochs);
+
+    FloatMatrix allTrainFeatures = trainingDataset.GetTrainingFeatures();
+    FloatMatrix allTrainLabels = trainingDataset.GetTrainingLabels();
+    FloatMatrix allValidationFeatures = trainingDataset.GetValidationFeatures();
+    FloatMatrix allValidationLabels = trainingDataset.GetValidationLabels();
 
     for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
-      // TODO: handle batches
-      FloatMatrix actual = RunForwardPass(input);
-      FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, expected);
-      RunBackwardPass(gradient);
-      UpdateWeights();
+      while (trainingDataset.HasNextBatch()) {
+        auto input = trainingDataset.GetNextBatch();
+        FloatMatrix actual = RunForwardPass(input.features);
+        FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, input.labels);
+        gradient.MapInPlace([input](float x) { return x / input.features.GetColCount(); });
+        RunBackwardPass(gradient);
+        UpdateWeights();
+      }
+      trainingDataset.Reset();
+
+      // compute loss for training dataset
+      FloatMatrix trainPredictions = RunForwardPass(allTrainFeatures);
+      trainPredictions.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
+      trainPredictions.MapInPlace([](float x) { return std::log(x); });
+      auto trainLoss = allTrainLabels.Hadamard(trainPredictions);
+      trainLoss.Transpose();
+      auto trainFlat = FloatMatrix::SumColumns(trainLoss);
+      trainFlat.Transpose();
+      auto trainTotal = FloatMatrix::SumColumns(trainFlat);
+      lossesTraining.push_back(-trainTotal(0, 0) / trainLoss.GetRowCount());
+
+      // compute loss for validation dataset
+      if (trainingDataset.HasValidationDataset()) {
+        auto actual = RunForwardPass(allValidationFeatures);
+        actual.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
+        actual.MapInPlace([](float x) { return std::log(x); });
+        auto loss = allValidationLabels.Hadamard(actual);
+        loss.Transpose();
+        auto flat = FloatMatrix::SumColumns(loss);
+        flat.Transpose();
+        auto total = FloatMatrix::SumColumns(flat);
+        lossesValidation.push_back(-total(0, 0) / loss.GetRowCount());
+      }
     }
+
+    return {lossesTraining, lossesValidation};
   }
 
   ILayer* NeuralNetwork::GetLayer(size_t index) {  //

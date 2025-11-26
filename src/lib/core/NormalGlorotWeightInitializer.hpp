@@ -7,7 +7,9 @@
 
 namespace nnn {
 
-  /// @brief Suitable for softmax layers
+  /**
+   * @brief Suitable for softmax layers.
+   */
   class NormalGlorotWeightInitializer : public IWeightInitializer {
    public:
     NormalGlorotWeightInitializer();
