@@ -13,12 +13,15 @@ add_library(NewNeuralNetwork
     "core/NormalHeWeightInitializer.cpp"
     "core/NormalGlorotWeightInitializer.cpp"
     "core/TrainingDataset.cpp"
+    "core/DataLoader.cpp"
+    "io/CSVReader.cpp"
 )
 
 target_include_directories(NewNeuralNetwork
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         "${CMAKE_CURRENT_SOURCE_DIR}/core"
+        "${CMAKE_CURRENT_SOURCE_DIR}/io"
         "${CMAKE_CURRENT_SOURCE_DIR}/math"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/result"
 )
@@ -30,7 +33,11 @@ if (INCLUDE_TESTS STREQUAL "ON")
     add_executable(NeuralNetworkWorkflowsUnitTests "core/tests/NeuralNetworkWorkflows.test.cpp")
     target_link_libraries(NeuralNetworkWorkflowsUnitTests PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
 
+    add_executable(CSVReaderUnitTests "io/tests/CSVReader.test.cpp")
+    target_link_libraries(CSVReaderUnitTests PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
+
     enable_testing()
     add_test(NAME FloatMatrixUnitTests COMMAND FloatMatrixUnitTests)
     add_test(NAME NeuralNetworkWorkflowsUnitTests COMMAND NeuralNetworkWorkflowsUnitTests)
+    add_test(NAME CSVReaderUnitTests COMMAND CSVReaderUnitTests)
 endif()
