@@ -64,7 +64,7 @@ cpp::result<std::shared_ptr<nnn::FloatMatrix>, std::string> nnn::CSVReader::Read
   }
 
   inputFile.close();
-  return std::make_shared<nnn::FloatMatrix>(rows, cols, rawData);
+  return std::make_shared<nnn::FloatMatrix>(rows, cols, std::move(rawData));
 }
 
 bool nnn::CSVReader::IsValid(
