@@ -362,9 +362,9 @@ TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax - 
   CHECK_THAT(result(1, 3), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(1, 3), 0.01));
 }
 
-TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere + Validation") {  //
+TEST_CASE("3 Layer NN - Recognize when a point is in a circle + Validation") {  //
 
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.1f, 100));  // learning rate, epochs
+  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.3f, 80));  // learning rate, epochs
 
   auto initR = nnn::NormalGlorotWeightInitializer(42);
   auto initS = nnn::NormalHeWeightInitializer(42);
@@ -415,6 +415,8 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
           -0.5431f})
                    .value();
 
+  input.MapInPlace([](float x) { return x / 1.5f; });
+
   auto expected = nnn::FloatMatrix::Create(200, 2,
       {0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
           1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
@@ -450,21 +452,27 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
   auto statistics = neuralNetwork.Train(dataset);
 
   // 3 outside 2 inside 1 inside near boundary
-  auto test = nnn::FloatMatrix::Create(2, 6, {1.0f, 0.9, -1.0f, 0.3f, -0.1f, 0.5f, -1.0f, 0.7, 0.2f, 0.2f, 0.4f, -0.4f})
+  auto test = nnn::FloatMatrix::Create(2, 6, {1.0f, 0.9, -1.0f, 0.3f, -0.1f, 0.5f, -1.0f, 0.7, 0.2f, 0.2f, 0.4f, -0.5f})
                   .value();
 
   auto results = neuralNetwork.RunForwardPass(test);
+  
+  // outside
   CHECK_THAT(results(0, 0), Catch::Matchers::WithinAbs(1.0f, 0.01));
-  CHECK_THAT(results(0, 1), Catch::Matchers::WithinAbs(1.0f, 0.01));
-  CHECK_THAT(results(0, 2), Catch::Matchers::WithinAbs(0.997f, 0.01));
-  CHECK_THAT(results(0, 3), Catch::Matchers::WithinAbs(0.022f, 0.01));
-  CHECK_THAT(results(0, 4), Catch::Matchers::WithinAbs(0.018f, 0.01));
-  CHECK_THAT(results(0, 5), Catch::Matchers::WithinAbs(0.286f, 0.01));
-
   CHECK_THAT(results(1, 0), Catch::Matchers::WithinAbs(0.0f, 0.01));
+
+  CHECK_THAT(results(0, 1), Catch::Matchers::WithinAbs(1.0f, 0.01));
   CHECK_THAT(results(1, 1), Catch::Matchers::WithinAbs(0.0f, 0.01));
-  CHECK_THAT(results(1, 2), Catch::Matchers::WithinAbs(0.003f, 0.01));
-  CHECK_THAT(results(1, 3), Catch::Matchers::WithinAbs(0.978f, 0.01));
-  CHECK_THAT(results(1, 4), Catch::Matchers::WithinAbs(0.982f, 0.01));
-  CHECK(results(1, 5) > results(0, 5));
+
+  CHECK_THAT(results(0, 2), Catch::Matchers::WithinAbs(1.0f, 0.01));
+  CHECK_THAT(results(1, 2), Catch::Matchers::WithinAbs(0.0f, 0.01));
+
+  // inside
+  CHECK_THAT(results(0, 3), Catch::Matchers::WithinAbs(0.0f, 0.01));
+  CHECK_THAT(results(1, 3), Catch::Matchers::WithinAbs(1.0f, 0.01));
+
+  CHECK_THAT(results(0, 4), Catch::Matchers::WithinAbs(0.0f, 0.01));
+  CHECK_THAT(results(1, 4), Catch::Matchers::WithinAbs(1.0f, 0.01));
+
+  CHECK(results(1, 5) > results(0, 5)); // near the border
 }
