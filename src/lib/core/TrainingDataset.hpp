@@ -10,9 +10,6 @@ namespace nnn {
     struct TrainingDatasetParameters {
       size_t batchSize = 64;
       float validationSetFraction = 0.25f;
-
-      TrainingDatasetParameters(size_t batchSize, float validationSetFraction)
-          : batchSize(batchSize), validationSetFraction(validationSetFraction) {}
     };
 
     struct TrainingBatch {
@@ -20,9 +17,8 @@ namespace nnn {
       FloatMatrix labels;
     };
 
-    TrainingDataset(std::shared_ptr<const FloatMatrix> data,
-        std::shared_ptr<const FloatMatrix> datalabels,
-        TrainingDatasetParameters params);
+    TrainingDataset(
+        std::shared_ptr<FloatMatrix> data, std::shared_ptr<FloatMatrix> datalabels, TrainingDatasetParameters params);
 
     TrainingBatch GetNextBatch();
     bool HasNextBatch() const;
