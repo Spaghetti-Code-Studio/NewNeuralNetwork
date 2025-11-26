@@ -1,7 +1,9 @@
 #include "DataLoader.hpp"
 
-cpp::result<nnn::DataLoader::Dataset, std::string> nnn::DataLoader::Load(
-    const Filepaths& filepaths, std::shared_ptr<IReader> reader, TrainingParameters options) {  //
+cpp::result<nnn::DataLoader::Dataset, std::string> nnn::DataLoader::Load(const Filepaths& filepaths,
+    std::shared_ptr<IReader> reader,
+    TrainingParameters trainingParams,
+    LoadingParameters loadingParams) {  //
 
   auto trainingFeaturesReadResult = reader->Read(filepaths.trainingFeatures);
   if (trainingFeaturesReadResult.has_error()) {
@@ -24,13 +26,17 @@ cpp::result<nnn::DataLoader::Dataset, std::string> nnn::DataLoader::Load(
   }
 
   TrainingDataset trainingDataset(trainingFeaturesReadResult.value(), trainingLabelsReadResult.value(),
-      {.batchSize = options.batchSize, .validationSetFraction = options.validationSetFraction});
+      {.batchSize = trainingParams.batchSize, .validationSetFraction = trainingParams.validationSetFraction});
 
   nnn::DataLoader::Dataset finalDataset = {.trainingDataset = trainingDataset,
       .testingFeatures = testingFeaturesReadResult.value(),
       .testingLabels = testingLabelsReadResult.value()};
 
-  // TODO: normalization, one-hot encoding
+  // TODO: normalization
+
+  if (loadingParams.shouldOneHotEncode) {
+    // TODO: do one-hot encoding
+  }
 
   return finalDataset;
 }

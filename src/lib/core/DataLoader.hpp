@@ -25,12 +25,18 @@ namespace nnn::DataLoader {
   };
 
   struct TrainingParameters {
-    size_t expectedClassNumber;
     size_t batchSize = 64;
     float validationSetFraction = 0.25f;
   };
 
+  struct LoadingParameters {
+    size_t expectedClassNumber;
+    bool shouldOneHotEncode;
+  };
+
   // TODO: optimally, this function should take clean-up logic and other functionality as parameter
-  cpp::result<Dataset, std::string> Load(
-      const Filepaths& filepaths, std::shared_ptr<IReader> reader, TrainingParameters options);
+  cpp::result<Dataset, std::string> Load(const Filepaths& filepaths,
+      std::shared_ptr<IReader> reader,
+      TrainingParameters trainingParams,
+      LoadingParameters loadingParams);
 }  // namespace nnn::DataLoader

@@ -332,12 +332,12 @@ TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax - 
   size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(4, 2, init));
 
   auto reader = std::make_shared<nnn::CSVReader>();
-  auto datasetResult =
-      nnn::DataLoader::Load({.trainingFeatures = "../../../../../src/lib/core/tests/xorTrainingFeatures.csv",
-                                .trainingLabels = "../../../../../src/lib/core/tests/xorTrainingLabels.csv",
-                                .testingFeatures = "../../../../../src/lib/core/tests/xorTestFeatures.csv",
-                                .testingLabels = "../../../../../src/lib/core/tests/xorTestLabels.csv"},
-          reader, {.expectedClassNumber = 2, .batchSize = 4, .validationSetFraction = 0.0f});
+  auto datasetResult = nnn::DataLoader::Load(
+      {.trainingFeatures = "../../../../../src/lib/core/tests/xorTrainingFeatures.csv",
+          .trainingLabels = "../../../../../src/lib/core/tests/xorTrainingLabels.csv",
+          .testingFeatures = "../../../../../src/lib/core/tests/xorTestFeatures.csv",
+          .testingLabels = "../../../../../src/lib/core/tests/xorTestLabels.csv"},
+      reader, {.batchSize = 4, .validationSetFraction = 0.0f}, {.expectedClassNumber = 2, .shouldOneHotEncode = false});
 
   REQUIRE(datasetResult.has_value());
 
@@ -456,7 +456,7 @@ TEST_CASE("3 Layer NN - Recognize when a point is in a circle + Validation") {  
                   .value();
 
   auto results = neuralNetwork.RunForwardPass(test);
-  
+
   // outside
   CHECK_THAT(results(0, 0), Catch::Matchers::WithinAbs(1.0f, 0.01));
   CHECK_THAT(results(1, 0), Catch::Matchers::WithinAbs(0.0f, 0.01));
@@ -474,5 +474,5 @@ TEST_CASE("3 Layer NN - Recognize when a point is in a circle + Validation") {  
   CHECK_THAT(results(0, 4), Catch::Matchers::WithinAbs(0.0f, 0.01));
   CHECK_THAT(results(1, 4), Catch::Matchers::WithinAbs(1.0f, 0.01));
 
-  CHECK(results(1, 5) > results(0, 5)); // near the border
+  CHECK(results(1, 5) > results(0, 5));  // near the border
 }
