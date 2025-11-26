@@ -260,7 +260,7 @@ namespace nnn {
 
   std::string FloatMatrix::ToString() const {
     std::ostringstream oss;
-    oss << std::fixed << std::setprecision(3);
+    oss << std::fixed << std::setprecision(6);
     oss << "FloatMatrix (" << GetRowCount() << "x" << GetColCount() << ", transposed=" << std::boolalpha << m_transposed
         << ")\n";
 
