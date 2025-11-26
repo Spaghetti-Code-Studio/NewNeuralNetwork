@@ -38,6 +38,16 @@ TEST_CASE("Valid file - different delimiter") {
   CHECK_THAT((*matrix)(1, 3), Catch::Matchers::WithinAbs(0.0f, 0.001));
 }
 
+TEST_CASE("Valid file - empty") {
+  nnn::CSVReader reader;
+  auto readResult = reader.Read("../../../../../src/lib/io/tests/empty.csv");
+  REQUIRE(readResult.has_value());
+
+  auto matrix = readResult.value();
+  CHECK(matrix->GetColCount() == 0);
+  CHECK(matrix->GetRowCount() == 0);
+}
+
 TEST_CASE("Invalid file - corrupted data") {
   nnn::CSVReader reader;
   auto readResult = reader.Read("../../../../../src/lib/io/tests/testDataInvalid.csv");
