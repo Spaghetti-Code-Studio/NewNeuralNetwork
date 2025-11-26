@@ -5,20 +5,19 @@
 #include <memory>
 
 #include "CrossEntropyWithSoftmax.hpp"
+#include "CSVReader.hpp"
+#include "DataLoader.hpp"
 #include "DenseLayer.hpp"
 #include "FloatMatrix.hpp"
 #include "ILayer.hpp"
-#include "NeuralNetwork.hpp"
-#include "ReLU.hpp"
 #include "LeakyReLU.hpp"
+#include "NeuralNetwork.hpp"
+#include "NormalGlorotWeightInitializer.hpp"
+#include "NormalHeWeightInitializer.hpp"
+#include "ReLU.hpp"
 #include "Softmax.hpp"
 #include "SoftmaxDenseOutputLayer.hpp"
-#include "NormalHeWeightInitializer.hpp"
-#include "NormalGlorotWeightInitializer.hpp"
-
 #include "TrainingDataset.hpp"
-
-#include <iostream>
 
 #include "TestableNeuralNetwork.hpp"
 
@@ -316,6 +315,51 @@ TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") 
   // 99% confidence XOR(1,1) is 0
   CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs(1.0f, 0.01));
   CHECK_THAT(result(1, 3), Catch::Matchers::WithinAbs(0.0f, 0.01));
+}
+
+TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax - From CSV") {  //
+
+  // intentionally testing overfitting
+  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.8f, 200));  // learning rate, epochs
+
+  auto init = nnn::NormalGlorotWeightInitializer(42);
+
+  size_t l1 = neuralNetwork.AddHiddenLayer(
+      std::make_unique<nnn::DenseLayer>(2, 4, std::make_unique<nnn::LeakyReLU>(0.05f), init));
+  size_t l2 = neuralNetwork.AddHiddenLayer(
+      std::make_unique<nnn::DenseLayer>(4, 4, std::make_unique<nnn::LeakyReLU>(0.05f), init));
+
+  size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(4, 2, init));
+
+  auto reader = std::make_shared<nnn::CSVReader>();
+  auto datasetResult =
+      nnn::DataLoader::Load({.trainingFeatures = "../../../../../src/lib/core/tests/xorTrainingFeatures.csv",
+                                .trainingLabels = "../../../../../src/lib/core/tests/xorTrainingLabels.csv",
+                                .testingFeatures = "../../../../../src/lib/core/tests/xorValidationFeatures.csv",
+                                .testingLabels = "../../../../../src/lib/core/tests/xorValidationLabels.csv"},
+          reader, {.expectedClassNumber = 2, .batchSize = 4, .validationSetFraction = 0.0f});
+
+  REQUIRE(datasetResult.has_value());
+
+  neuralNetwork.Train(datasetResult.value().trainingDataset);
+
+  auto result = neuralNetwork.RunForwardPass(*datasetResult.value().testingFeatures);
+
+  // 99% confidence XOR(0,0) is 0
+  CHECK_THAT(result(0, 0), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(0, 0), 0.01));
+  CHECK_THAT(result(1, 0), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(1, 0), 0.01));
+
+  // 99% confidence XOR(0,1) is 1
+  CHECK_THAT(result(0, 1), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(0, 1), 0.01));
+  CHECK_THAT(result(1, 1), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(1, 1), 0.01));
+
+  // 99% confidence XOR(1,0) is 1
+  CHECK_THAT(result(0, 2), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(0, 2), 0.01));
+  CHECK_THAT(result(1, 2), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(1, 2), 0.01));
+
+  // 99% confidence XOR(1,1) is 0
+  CHECK_THAT(result(0, 3), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(0, 3), 0.01));
+  CHECK_THAT(result(1, 3), Catch::Matchers::WithinAbs((*datasetResult.value().testingLabels)(1, 3), 0.01));
 }
 
 TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere + Validation") {  //
