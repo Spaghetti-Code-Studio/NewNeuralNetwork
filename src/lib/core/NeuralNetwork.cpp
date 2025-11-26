@@ -30,21 +30,26 @@ namespace nnn {
 
       for (size_t i = 0; i < newWeights.GetRowCount(); i++) {
         for (size_t j = 0; j < newWeights.GetColCount(); j++) {
-          assert(std::abs(newWeights(i, j)) < 99999 && "weight seems to be exploding");  // REMOVE THIS LATER
+          assert(std::abs(newWeights(i, j)) < 99999 && "The weight seems to be exploding!");  // TODO: remove this later
         }
       }
       layer.Update(newWeights, newBiases);
     });
   }
 
-  NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset) {
+  NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset) {  //
+
     auto lossesValidation = std::vector<float>();
     auto lossesTraining = std::vector<float>();
     lossesValidation.reserve(m_params.epochs);
     lossesTraining.reserve(m_params.epochs);
 
-    for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
+    FloatMatrix allTrainFeatures = trainingDataset.GetTrainingFeatures();
+    FloatMatrix allTrainLabels = trainingDataset.GetTrainingLabels();
+    FloatMatrix allValidationFeatures = trainingDataset.GetValidationFeatures();
+    FloatMatrix allValidationLabels = trainingDataset.GetValidationLabels();
 
+    for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {
       while (trainingDataset.HasNextBatch()) {
         auto input = trainingDataset.GetNextBatch();
         FloatMatrix actual = RunForwardPass(input.features);
@@ -53,14 +58,12 @@ namespace nnn {
         RunBackwardPass(gradient);
         UpdateWeights();
       }
+      trainingDataset.Reset();
 
-      FloatMatrix allTrainFeatures = trainingDataset.GetTrainingFeatures();
-      FloatMatrix allTrainLabels = trainingDataset.GetTrainingLabels();
+      // compute loss for training dataset
       FloatMatrix trainPredictions = RunForwardPass(allTrainFeatures);
-
       trainPredictions.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
       trainPredictions.MapInPlace([](float x) { return std::log(x); });
-      
       auto trainLoss = allTrainLabels.Hadamard(trainPredictions);
       trainLoss.Transpose();
       auto trainFlat = FloatMatrix::SumColumns(trainLoss);
@@ -68,22 +71,21 @@ namespace nnn {
       auto trainTotal = FloatMatrix::SumColumns(trainFlat);
       lossesTraining.push_back(-trainTotal(0, 0) / trainLoss.GetRowCount());
 
+      // compute loss for validation dataset
       if (trainingDataset.HasValidationDataset()) {
-        auto actual = RunForwardPass(trainingDataset.GetValidationFeatures());
+        auto actual = RunForwardPass(allValidationFeatures);
         actual.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
         actual.MapInPlace([](float x) { return std::log(x); });
-        auto loss = trainingDataset.GetValidationLabels().Hadamard(actual);
+        auto loss = allValidationLabels.Hadamard(actual);
         loss.Transpose();
         auto flat = FloatMatrix::SumColumns(loss);
         flat.Transpose();
         auto total = FloatMatrix::SumColumns(flat);
         lossesValidation.push_back(-total(0, 0) / loss.GetRowCount());
       }
-
-      trainingDataset.Reset();
     }
 
-    return NeuralNetwork::Statistics(lossesTraining, lossesValidation);
+    return {lossesTraining, lossesValidation};
   }
 
   ILayer* NeuralNetwork::GetLayer(size_t index) {  //

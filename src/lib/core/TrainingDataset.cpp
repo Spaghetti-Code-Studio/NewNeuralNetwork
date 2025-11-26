@@ -27,22 +27,22 @@ namespace nnn {
 
   bool TrainingDataset::HasNextBatch() const { return m_trainingBatchIndex < m_trainingBatchCount; }
 
-  const FloatMatrix& TrainingDataset::GetValidationFeatures() const {
-    static FloatMatrix validationFeatures = m_data->GetColumns(m_trainingDatasetSize, m_data->GetColCount() - 1);
+  FloatMatrix TrainingDataset::GetValidationFeatures() const {
+    FloatMatrix validationFeatures = m_data->GetColumns(m_trainingDatasetSize, m_data->GetColCount() - 1);
     return validationFeatures;
   }
-  const FloatMatrix& TrainingDataset::GetValidationLabels() const {
-    static FloatMatrix validationLabels = m_labels->GetColumns(m_trainingDatasetSize, m_data->GetColCount() - 1);
+  FloatMatrix TrainingDataset::GetValidationLabels() const {
+    FloatMatrix validationLabels = m_labels->GetColumns(m_trainingDatasetSize, m_data->GetColCount() - 1);
     return validationLabels;
   }
 
-  const FloatMatrix& TrainingDataset::GetTrainingFeatures() const {
-    static FloatMatrix trainingFeatures = m_data->GetColumns(0, m_trainingDatasetSize - 1);
+  FloatMatrix TrainingDataset::GetTrainingFeatures() const {
+    FloatMatrix trainingFeatures = m_data->GetColumns(0, m_trainingDatasetSize - 1);
     return trainingFeatures;
   }
 
-  const FloatMatrix& TrainingDataset::GetTrainingLabels() const {
-    static FloatMatrix trainingLabels = m_labels->GetColumns(0, m_trainingDatasetSize - 1);
+  FloatMatrix TrainingDataset::GetTrainingLabels() const {
+    FloatMatrix trainingLabels = m_labels->GetColumns(0, m_trainingDatasetSize - 1);
     return trainingLabels;
   }
 

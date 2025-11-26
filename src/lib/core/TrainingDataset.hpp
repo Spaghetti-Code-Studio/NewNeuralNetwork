@@ -29,11 +29,11 @@ namespace nnn {
     bool HasValidationDataset() const { return m_params.validationSetFraction != 0.0f; }
 
     void Reset();
-    const FloatMatrix& GetValidationFeatures() const;
-    const FloatMatrix& GetValidationLabels() const;
+    FloatMatrix GetValidationFeatures() const;
+    FloatMatrix GetValidationLabels() const;
 
-    const FloatMatrix& GetTrainingFeatures() const;
-    const FloatMatrix& GetTrainingLabels() const;
+    FloatMatrix GetTrainingFeatures() const;
+    FloatMatrix GetTrainingLabels() const;
 
    private:
     std::shared_ptr<const FloatMatrix> m_data;
