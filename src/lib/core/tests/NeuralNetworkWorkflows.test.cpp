@@ -335,8 +335,8 @@ TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax - 
   auto datasetResult =
       nnn::DataLoader::Load({.trainingFeatures = "../../../../../src/lib/core/tests/xorTrainingFeatures.csv",
                                 .trainingLabels = "../../../../../src/lib/core/tests/xorTrainingLabels.csv",
-                                .testingFeatures = "../../../../../src/lib/core/tests/xorValidationFeatures.csv",
-                                .testingLabels = "../../../../../src/lib/core/tests/xorValidationLabels.csv"},
+                                .testingFeatures = "../../../../../src/lib/core/tests/xorTestFeatures.csv",
+                                .testingLabels = "../../../../../src/lib/core/tests/xorTestLabels.csv"},
           reader, {.expectedClassNumber = 2, .batchSize = 4, .validationSetFraction = 0.0f});
 
   REQUIRE(datasetResult.has_value());
