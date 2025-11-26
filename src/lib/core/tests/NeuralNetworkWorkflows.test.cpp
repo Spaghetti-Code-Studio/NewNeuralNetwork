@@ -281,7 +281,7 @@ TEST_CASE("2 Layer NN - Basic forward and backward pass with ReLU and SoftMax") 
 TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") {  //
 
   // intentionally testing overfitting
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.6f, 600));  // learning rate, epochs
+  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.8f, 200));  // learning rate, epochs
 
   auto init = nnn::NormalGlorotWeightInitializer(42);
 
@@ -320,18 +320,18 @@ TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") 
 
 TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere + Validation") {  //
 
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.01f, 600));  // learning rate, epochs
+  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.1f, 100));  // learning rate, epochs
 
-  auto init = nnn::NormalGlorotWeightInitializer(42);
-  auto _init = nnn::NormalHeWeightInitializer(42);
+  auto initR = nnn::NormalGlorotWeightInitializer(42);
+  auto initS = nnn::NormalHeWeightInitializer(42);
 
   size_t l1 = neuralNetwork.AddHiddenLayer(
-      std::make_unique<nnn::DenseLayer>(2, 16, std::make_unique<nnn::LeakyReLU>(0.05f), _init));
+      std::make_unique<nnn::DenseLayer>(2, 8, std::make_unique<nnn::LeakyReLU>(), initR));
   size_t l2 = neuralNetwork.AddHiddenLayer(
-      std::make_unique<nnn::DenseLayer>(16, 16, std::make_unique<nnn::LeakyReLU>(0.05f), _init));
-  size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(16, 2, _init));
+      std::make_unique<nnn::DenseLayer>(8, 8, std::make_unique<nnn::LeakyReLU>(), initR));
+  size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(8, 2, initS));
 
-  auto input = nnn::FloatMatrix::Create(2, 200,
+  auto input = nnn::FloatMatrix::Create(200, 2,
       {-0.1811f, 0.2951f, 0.3547f, -1.1966f, -1.0151f, 1.1957f, 1.4580f, 0.7601f, -0.9143f, 0.6674f, 1.3085f, 0.5881f,
           -0.4451f, -0.0399f, 0.2200f, 0.3281f, -0.0832f, -0.0056f, -0.9276f, 0.1636f, 0.8100f, -0.8525f, 0.7518f,
           0.9205f, 0.8949f, 0.4499f, -0.3798f, 0.0252f, 1.3244f, -0.3417f, 0.3868f, 1.1324f, -0.0792f, -0.3366f,
@@ -374,7 +374,7 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
   // rescale to fit [-1, 1]
   input.MapInPlace([](float x) { return x / 1.5f; });
 
-  auto expected = nnn::FloatMatrix::Create(2, 200,
+  auto expected = nnn::FloatMatrix::Create(200, 2,
       {0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
           1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
           1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
@@ -399,16 +399,28 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
           0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
           1.0f, 1.0f, 0.0f})
                       .value();
+  
+  // use our column convention
+  input.Transpose();
+  expected.Transpose();
 
   auto dataset = nnn::TrainingDataset(std::make_shared<nnn::FloatMatrix>(input),
-      std::make_shared<nnn::FloatMatrix>(expected), {90, 0.1f});  // batch size, validation set %
+      std::make_shared<nnn::FloatMatrix>(expected), {45, 0.1f});  // batch size, validation set %
   auto statistics = neuralNetwork.Train(dataset);
 
   // validation loss should be decreasing
   for (size_t i = 0; i < statistics.trainingLosses.size(); i++) {
-    if (i % 20 == 0)
-      std::cout << "+e" << i << ": " << statistics.trainingLosses[i]
+    if (i % 5 == 0)
+      std::cout << "epoch: +" << i << ": " << statistics.trainingLosses[i]
                 << " with validation: " << statistics.validationLosses[i] << '\n';
   }
   std::cout << std::endl;
+
+  // 3 outside 2 inside 1 inside near boundary
+  auto test = nnn::FloatMatrix::Create(2, 6,
+    {1.0f, 0.9, -1.0f, 0.3f, -0.1f, 0.5f,
+    -1.0f, 0.7, 0.2f, 0.2f, 0.4f, -0.4f})
+  .value();
+  auto results = neuralNetwork.RunForwardPass(test);
+  results.Print();
 }
