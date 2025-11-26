@@ -325,10 +325,10 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
   auto initR = nnn::NormalGlorotWeightInitializer(42);
   auto initS = nnn::NormalHeWeightInitializer(42);
 
-  size_t l1 = neuralNetwork.AddHiddenLayer(
-      std::make_unique<nnn::DenseLayer>(2, 8, std::make_unique<nnn::LeakyReLU>(), initR));
-  size_t l2 = neuralNetwork.AddHiddenLayer(
-      std::make_unique<nnn::DenseLayer>(8, 8, std::make_unique<nnn::LeakyReLU>(), initR));
+  size_t l1 =
+      neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 8, std::make_unique<nnn::LeakyReLU>(), initR));
+  size_t l2 =
+      neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(8, 8, std::make_unique<nnn::LeakyReLU>(), initR));
   size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(8, 2, initS));
 
   auto input = nnn::FloatMatrix::Create(200, 2,
@@ -399,7 +399,7 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
           0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
           1.0f, 1.0f, 0.0f})
                       .value();
-  
+
   // use our column convention
   input.Transpose();
   expected.Transpose();
@@ -408,19 +408,22 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
       std::make_shared<nnn::FloatMatrix>(expected), {45, 0.1f});  // batch size, validation set %
   auto statistics = neuralNetwork.Train(dataset);
 
-  // validation loss should be decreasing
-  for (size_t i = 0; i < statistics.trainingLosses.size(); i++) {
-    if (i % 5 == 0)
-      std::cout << "epoch: +" << i << ": " << statistics.trainingLosses[i]
-                << " with validation: " << statistics.validationLosses[i] << '\n';
-  }
-  std::cout << std::endl;
-
   // 3 outside 2 inside 1 inside near boundary
-  auto test = nnn::FloatMatrix::Create(2, 6,
-    {1.0f, 0.9, -1.0f, 0.3f, -0.1f, 0.5f,
-    -1.0f, 0.7, 0.2f, 0.2f, 0.4f, -0.4f})
-  .value();
+  auto test = nnn::FloatMatrix::Create(2, 6, {1.0f, 0.9, -1.0f, 0.3f, -0.1f, 0.5f, -1.0f, 0.7, 0.2f, 0.2f, 0.4f, -0.4f})
+                  .value();
+
   auto results = neuralNetwork.RunForwardPass(test);
-  results.Print();
+  CHECK_THAT(results(0, 0), Catch::Matchers::WithinAbs(1.0f, 0.01));
+  CHECK_THAT(results(0, 1), Catch::Matchers::WithinAbs(1.0f, 0.01));
+  CHECK_THAT(results(0, 2), Catch::Matchers::WithinAbs(0.997f, 0.01));
+  CHECK_THAT(results(0, 3), Catch::Matchers::WithinAbs(0.022f, 0.01));
+  CHECK_THAT(results(0, 4), Catch::Matchers::WithinAbs(0.018f, 0.01));
+  CHECK_THAT(results(0, 5), Catch::Matchers::WithinAbs(0.286f, 0.01));
+
+  CHECK_THAT(results(1, 0), Catch::Matchers::WithinAbs(0.0f, 0.01));
+  CHECK_THAT(results(1, 1), Catch::Matchers::WithinAbs(0.0f, 0.01));
+  CHECK_THAT(results(1, 2), Catch::Matchers::WithinAbs(0.003f, 0.01));
+  CHECK_THAT(results(1, 3), Catch::Matchers::WithinAbs(0.978f, 0.01));
+  CHECK_THAT(results(1, 4), Catch::Matchers::WithinAbs(0.982f, 0.01));
+  CHECK(results(1, 5) > results(0, 5));
 }

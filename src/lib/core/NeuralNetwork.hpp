@@ -1,9 +1,11 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
+#include <iomanip>
 
 #include "FloatMatrix.hpp"
 #include "ILayer.hpp"
@@ -40,6 +42,21 @@ namespace nnn {
     struct Statistics {
       std::vector<float> trainingLosses;
       std::vector<float> validationLosses;
+
+      void Print(int stride = 0) const {  //
+
+        const int precision = 5;
+        std::cout << std::fixed << std::setprecision(precision);
+
+        for (size_t i = 0; i < trainingLosses.size(); i++) {
+          if (stride == 0 || i % stride == 0) {
+            std::cout << "Epoch <" << i << "> - training loss: <" << trainingLosses[i] << ">, validation loss: <"
+                      << validationLosses[i] << ">.\n";
+          }
+        }
+
+        std::cout << std::defaultfloat;
+      }
     };
 
     Statistics Train(TrainingDataset& trainingDataset);
