@@ -371,9 +371,6 @@ TEST_CASE("Train a neural network to recognize when a circle is in a unit sphere
           -0.5431f})
                    .value();
 
-  // rescale to fit [-1, 1]
-  input.MapInPlace([](float x) { return x / 1.5f; });
-
   auto expected = nnn::FloatMatrix::Create(200, 2,
       {0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
           1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
