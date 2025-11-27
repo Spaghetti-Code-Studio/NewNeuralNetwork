@@ -14,6 +14,7 @@ add_library(NewNeuralNetwork
     "core/NormalGlorotWeightInitializer.cpp"
     "core/TrainingDataset.cpp"
     "core/DataLoader.cpp"
+    "core/TestDataSoftmaxEvaluator.cpp"
     "io/CSVReader.cpp"
 )
 
