@@ -32,6 +32,7 @@ namespace nnn::DataLoader {
   struct LoadingParameters {
     size_t expectedClassNumber;
     bool shouldOneHotEncode;
+    float normalizationFactor = 1.0f;
   };
 
   // TODO: optimally, this function should take clean-up logic and other functionality as parameter

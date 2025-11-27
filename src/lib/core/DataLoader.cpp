@@ -25,18 +25,51 @@ cpp::result<nnn::DataLoader::Dataset, std::string> nnn::DataLoader::Load(const F
     return cpp::fail(testingLabelsReadResult.error());
   }
 
+  const float normFact = loadingParams.normalizationFactor;
+  if (normFact != 1.0f && normFact != 0.0f) {
+    trainingFeaturesReadResult.value()->MapInPlace([normFact](float x) {return x / normFact; });
+    testingFeaturesReadResult.value()->MapInPlace([normFact](float x) {return x / normFact; });
+  }
+
+  // TODO: this could probably be done more efficiently by mutating the object, not recreating them
+  // luckily the labels are much smaller then the features
+  if (loadingParams.shouldOneHotEncode) {
+
+    auto rowsTrain = trainingLabelsReadResult.value()->GetRowCount();
+    auto rowsTest = testingLabelsReadResult.value()->GetRowCount();
+
+    auto newTrainLabels = std::make_shared<nnn::FloatMatrix>(rowsTrain, loadingParams.expectedClassNumber);
+    auto newTestLabels = std::make_shared<nnn::FloatMatrix>(rowsTest, loadingParams.expectedClassNumber);
+
+    auto& oldTrainingLabelsPtr = *trainingLabelsReadResult.value();
+    auto& oldTestingLabelsPtr = *testingLabelsReadResult.value();
+    auto& newTrainLabelsPtr = *newTrainLabels;
+    auto& newTestLabelsPtr = *newTestLabels;
+
+    for (size_t row = 0; row < rowsTrain; row++) {
+      newTrainLabelsPtr(row, static_cast<size_t>(oldTrainingLabelsPtr(row, 0))) = 1.0f;
+    }
+
+    for (size_t row = 0; row < rowsTest; row++) {
+      newTestLabelsPtr(row, static_cast<size_t>(oldTestingLabelsPtr(row, 0))) = 1.0f;
+    }
+    
+    trainingLabelsReadResult = newTrainLabels;
+    testingLabelsReadResult = newTestLabels;
+  }
+  
+  // adjust for column convention
+  trainingFeaturesReadResult.value()->Transpose();
+  testingFeaturesReadResult.value()->Transpose();
+  trainingLabelsReadResult.value()->Transpose();
+  testingLabelsReadResult.value()->Transpose();
+
   TrainingDataset trainingDataset(trainingFeaturesReadResult.value(), trainingLabelsReadResult.value(),
       {.batchSize = trainingParams.batchSize, .validationSetFraction = trainingParams.validationSetFraction});
 
   nnn::DataLoader::Dataset finalDataset = {.trainingDataset = trainingDataset,
       .testingFeatures = testingFeaturesReadResult.value(),
       .testingLabels = testingLabelsReadResult.value()};
-
-  // TODO: normalization
-
-  if (loadingParams.shouldOneHotEncode) {
-    // TODO: do one-hot encoding
-  }
 
   return finalDataset;
 }
