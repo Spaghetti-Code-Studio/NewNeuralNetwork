@@ -27,14 +27,13 @@ cpp::result<nnn::DataLoader::Dataset, std::string> nnn::DataLoader::Load(const F
 
   const float normFact = loadingParams.normalizationFactor;
   if (normFact != 1.0f && normFact != 0.0f) {
-    trainingFeaturesReadResult.value()->MapInPlace([normFact](float x) {return x / normFact; });
-    testingFeaturesReadResult.value()->MapInPlace([normFact](float x) {return x / normFact; });
+    trainingFeaturesReadResult.value()->MapInPlace([normFact](float x) { return x / normFact; });
+    testingFeaturesReadResult.value()->MapInPlace([normFact](float x) { return x / normFact; });
   }
 
-  // TODO: this could probably be done more efficiently by mutating the object, not recreating them
-  // luckily the labels are much smaller then the features
+  // TODO: this could probably be done more efficiently by not loading the whole labels file, just reading it and
+  // creating one-hot encoded data right away
   if (loadingParams.shouldOneHotEncode) {
-
     auto rowsTrain = trainingLabelsReadResult.value()->GetRowCount();
     auto rowsTest = testingLabelsReadResult.value()->GetRowCount();
 
@@ -53,11 +52,11 @@ cpp::result<nnn::DataLoader::Dataset, std::string> nnn::DataLoader::Load(const F
     for (size_t row = 0; row < rowsTest; row++) {
       newTestLabelsPtr(row, static_cast<size_t>(oldTestingLabelsPtr(row, 0))) = 1.0f;
     }
-    
+
     trainingLabelsReadResult = newTrainLabels;
     testingLabelsReadResult = newTestLabels;
   }
-  
+
   // adjust for column convention
   trainingFeaturesReadResult.value()->Transpose();
   testingFeaturesReadResult.value()->Transpose();
