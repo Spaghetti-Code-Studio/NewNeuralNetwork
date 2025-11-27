@@ -16,6 +16,7 @@ add_library(NewNeuralNetwork
     "core/DataLoader.cpp"
     "core/TestDataSoftmaxEvaluator.cpp"
     "io/CSVReader.cpp"
+    "io/Config.cpp"
 )
 
 target_include_directories(NewNeuralNetwork
