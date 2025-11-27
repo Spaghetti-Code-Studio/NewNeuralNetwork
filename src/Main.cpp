@@ -34,20 +34,20 @@ int main(int argc, char* argv[]) {  //
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
   auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(
-      config.learningRate, config.epochs));  // TODO: use modern C++ initializator
+      config.learningRate, config.learningRateDecay, config.epochs));  // TODO: use modern C++ initializator
 
-  if (config.layers.size() == 0) {
-    std::cout << "No layers were defined. Neural network cannot be constructed!" << std::endl;
+  if (config.layers.size() < 2) {
+    std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;
     return -1;
   }
 
-  for (int layerIndex = 0; layerIndex < config.layers.size() - 1; ++layerIndex) {
-    neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(config.layers[layerIndex].inputNumber,
-        config.layers[layerIndex].outputNumber, std::make_unique<nnn::LeakyReLU>(), heInit));
+  for (int i = 0; i < config.layers.size() - 2; ++i) {
+    neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(
+        config.layers[i], config.layers[i + 1], std::make_unique<nnn::LeakyReLU>(), heInit));
   }
-  neuralNetwork.SetOutputLayer(
-      std::make_unique<nnn::SoftmaxDenseOutputLayer>(config.layers[config.layers.size() - 1].inputNumber,
-          config.layers[config.layers.size() - 1].outputNumber, glorotInit));
+
+  neuralNetwork.SetOutputLayer( std::make_unique<nnn::SoftmaxDenseOutputLayer>(
+        config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
 
   nnn::Timer timer;
   timer.Start();
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {  //
   std::cout << "Training neural network..." << std::endl;
   timer.Start();
   auto dataset = datasetResult.value();
-  auto statistics = neuralNetwork.Train(dataset.trainingDataset, true);
+  neuralNetwork.Train(dataset.trainingDataset, true); // ignore statistics output - print it live
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
 
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
