@@ -72,6 +72,7 @@ namespace nnn {
       lossesTraining.push_back(-trainTotal(0, 0) / trainLoss.GetRowCount());
 
       // compute loss for validation dataset
+      // TODO: separate this into a function when doing final code cleanups
       if (trainingDataset.HasValidationDataset()) {
         auto actual = RunForwardPass(allValidationFeatures);
         actual.MapInPlace([](float x) { return std::log(x); });
@@ -85,7 +86,7 @@ namespace nnn {
 
       if (reportProgress) {
         std::cout << std::fixed << std::setprecision(4);
-        std::cout << "Epoch " << epoch << " - training loss: " << lossesTraining.back();
+        std::cout << "Epoch " << epoch << "/" << m_params.epochs << " -  training loss: " << lossesTraining.back();
         if (trainingDataset.HasValidationDataset()) {
           std::cout << ", validation loss: " << lossesValidation.back();
           std::cout << std::setprecision(2) << " (aprox. " << std::exp(-lossesValidation.back())*100 << "%)"; 
@@ -93,6 +94,7 @@ namespace nnn {
         std::cout << "." << std::endl;
       }
 
+      m_params.learningRate *= m_params.learningRateDecay;
 
     }
 

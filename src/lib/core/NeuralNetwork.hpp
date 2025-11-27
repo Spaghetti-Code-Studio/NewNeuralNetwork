@@ -22,11 +22,13 @@ namespace nnn {
     // TODO: remove constructors so we can use mdoern C++ initializator
     struct HyperParameters {
       float learningRate = 0.001f;
+      float learningRateDecay = 1.0f;
       size_t epochs = 30;
 
       HyperParameters() = default;
       HyperParameters(float learningRate) : learningRate(learningRate) {}
       HyperParameters(float learningRate, size_t epochs) : learningRate(learningRate), epochs(epochs) {}
+      HyperParameters(float learningRate, float learningRateDecay, size_t epochs) : learningRate(learningRate), learningRateDecay(learningRateDecay), epochs(epochs) {}
     };
 
     NeuralNetwork() = default;
