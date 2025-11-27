@@ -23,6 +23,7 @@ target_include_directories(NewNeuralNetwork
         "${CMAKE_CURRENT_SOURCE_DIR}/core"
         "${CMAKE_CURRENT_SOURCE_DIR}/io"
         "${CMAKE_CURRENT_SOURCE_DIR}/math"
+        "${CMAKE_CURRENT_SOURCE_DIR}/core/utils"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/result"
 )
 
