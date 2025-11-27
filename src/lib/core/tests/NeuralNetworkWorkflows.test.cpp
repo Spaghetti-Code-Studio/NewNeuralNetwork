@@ -373,17 +373,17 @@ TEST_CASE("3 Layer NN - Recognize when a point is in a circle + Validation") {  
       neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 8, std::make_unique<nnn::LeakyReLU>(), initR));
   size_t l2 =
       neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(8, 8, std::make_unique<nnn::LeakyReLU>(), initR));
-  
+
   size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(8, 2, initS));
 
-   auto reader = std::make_shared<nnn::CSVReader>();
-  auto datasetResult = nnn::DataLoader::Load(
-      {.trainingFeatures = "../../../../../src/lib/core/tests/circleTrainingFeatures.csv",
-          .trainingLabels = "../../../../../src/lib/core/tests/circleTrainingLabels.csv",
-          .testingFeatures = "../../../../../src/lib/core/tests/circleTestFeatures.csv",
-          .testingLabels = "../../../../../src/lib/core/tests/circleTestLabels.csv"},
-      reader, {.batchSize = 45, .validationSetFraction = 0.1f},
-        {.expectedClassNumber = 2, .shouldOneHotEncode = true, .normalizationFactor=1.5f});
+  auto reader = std::make_shared<nnn::CSVReader>();
+  auto datasetResult =
+      nnn::DataLoader::Load({.trainingFeatures = "../../../../../src/lib/core/tests/circleTrainingFeatures.csv",
+                                .trainingLabels = "../../../../../src/lib/core/tests/circleTrainingLabels.csv",
+                                .testingFeatures = "../../../../../src/lib/core/tests/circleTestFeatures.csv",
+                                .testingLabels = "../../../../../src/lib/core/tests/circleTestLabels.csv"},
+          reader, {.batchSize = 45, .validationSetFraction = 0.1f},
+          {.expectedClassNumber = 2, .shouldOneHotEncode = true, .normalizationFactor = 1.5f});
 
   REQUIRE(datasetResult.has_value());
 

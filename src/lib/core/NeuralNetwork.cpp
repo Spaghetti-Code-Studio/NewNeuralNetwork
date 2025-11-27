@@ -86,16 +86,15 @@ namespace nnn {
 
       if (reportProgress) {
         std::cout << std::fixed << std::setprecision(4);
-        std::cout << "Epoch " << epoch << "/" << m_params.epochs << " -  training loss: " << lossesTraining.back();
+        std::cout << "Epoch " << epoch << "/" << m_params.epochs << " - training loss: " << lossesTraining.back();
         if (trainingDataset.HasValidationDataset()) {
           std::cout << ", validation loss: " << lossesValidation.back();
-          std::cout << std::setprecision(2) << " (aprox. " << std::exp(-lossesValidation.back())*100 << "%)"; 
+          std::cout << std::setprecision(2) << " (aprox. " << std::exp(-lossesValidation.back()) * 100 << "%)";
         }
         std::cout << "." << std::endl;
       }
 
       m_params.learningRate *= m_params.learningRateDecay;
-
     }
 
     return {lossesTraining, lossesValidation};

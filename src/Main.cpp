@@ -46,8 +46,8 @@ int main(int argc, char* argv[]) {  //
         config.layers[i], config.layers[i + 1], std::make_unique<nnn::LeakyReLU>(), heInit));
   }
 
-  neuralNetwork.SetOutputLayer( std::make_unique<nnn::SoftmaxDenseOutputLayer>(
-        config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
+  neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(
+      config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
 
   nnn::Timer timer;
   timer.Start();
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {  //
   std::cout << "Training neural network..." << std::endl;
   timer.Start();
   auto dataset = datasetResult.value();
-  neuralNetwork.Train(dataset.trainingDataset, true); // ignore statistics output - print it live
+  neuralNetwork.Train(dataset.trainingDataset, true);  // ignore statistics output - print it live
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
 
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;

@@ -28,7 +28,8 @@ namespace nnn {
       HyperParameters() = default;
       HyperParameters(float learningRate) : learningRate(learningRate) {}
       HyperParameters(float learningRate, size_t epochs) : learningRate(learningRate), epochs(epochs) {}
-      HyperParameters(float learningRate, float learningRateDecay, size_t epochs) : learningRate(learningRate), learningRateDecay(learningRateDecay), epochs(epochs) {}
+      HyperParameters(float learningRate, float learningRateDecay, size_t epochs)
+          : learningRate(learningRate), learningRateDecay(learningRateDecay), epochs(epochs) {}
     };
 
     NeuralNetwork() = default;
