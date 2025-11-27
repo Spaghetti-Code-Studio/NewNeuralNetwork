@@ -85,7 +85,7 @@ std::string nnn::Config::ToString() const {  //
 
   oss << std::fixed << std::setprecision(4);
 
-  oss << "--- Neural Network Config ---\n";
+  oss << "--- NewNeuralNetwork Config ---\n";
   oss << "General settings:\n";
   oss << "  Random seed:            " << randomSeed << "\n";
   oss << "  Learning rate:          " << learningRate << "\n";
