@@ -69,9 +69,8 @@ int main(int argc, char* argv[]) {  //
   std::cout << "Training neural network..." << std::endl;
   timer.Start();
   auto dataset = datasetResult.value();
-  auto statistics = neuralNetwork.Train(dataset.trainingDataset);
+  auto statistics = neuralNetwork.Train(dataset.trainingDataset, true);
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
-  statistics.Print();
 
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
   auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);

@@ -60,7 +60,7 @@ namespace nnn {
       }
     };
 
-    Statistics Train(TrainingDataset& trainingDataset);
+    Statistics Train(TrainingDataset& trainingDataset, bool reportProgress = false);
 
    protected:
     std::unique_ptr<IOutputLayer> m_outputLayer;

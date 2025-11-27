@@ -1,6 +1,7 @@
 #include "NeuralNetwork.hpp"
 #include <cmath>
 #include <assert.h>
+#include <iostream>
 
 namespace nnn {
 
@@ -37,7 +38,7 @@ namespace nnn {
     });
   }
 
-  NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset) {  //
+  NeuralNetwork::Statistics NeuralNetwork::Train(TrainingDataset& trainingDataset, bool reportProgress) {  //
 
     auto lossesValidation = std::vector<float>();
     auto lossesTraining = std::vector<float>();
@@ -62,7 +63,6 @@ namespace nnn {
 
       // compute loss for training dataset
       FloatMatrix trainPredictions = RunForwardPass(allTrainFeatures);
-      trainPredictions.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
       trainPredictions.MapInPlace([](float x) { return std::log(x); });
       auto trainLoss = allTrainLabels.Hadamard(trainPredictions);
       trainLoss.Transpose();
@@ -74,7 +74,6 @@ namespace nnn {
       // compute loss for validation dataset
       if (trainingDataset.HasValidationDataset()) {
         auto actual = RunForwardPass(allValidationFeatures);
-        actual.MapInPlace([](float x) { return std::max(1e-10f, std::min(1.0f - 1e-10f, x)); });
         actual.MapInPlace([](float x) { return std::log(x); });
         auto loss = allValidationLabels.Hadamard(actual);
         loss.Transpose();
@@ -83,6 +82,18 @@ namespace nnn {
         auto total = FloatMatrix::SumColumns(flat);
         lossesValidation.push_back(-total(0, 0) / loss.GetRowCount());
       }
+
+      if (reportProgress) {
+        std::cout << std::fixed << std::setprecision(4);
+        std::cout << "Epoch " << epoch << " - training loss: " << lossesTraining.back();
+        if (trainingDataset.HasValidationDataset()) {
+          std::cout << ", validation loss: " << lossesValidation.back();
+          std::cout << std::setprecision(2) << " (aprox. " << std::exp(-lossesValidation.back())*100 << "%)"; 
+        }
+        std::cout << "." << std::endl;
+      }
+
+
     }
 
     return {lossesTraining, lossesValidation};
