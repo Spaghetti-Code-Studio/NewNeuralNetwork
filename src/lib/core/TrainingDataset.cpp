@@ -2,9 +2,8 @@
 
 namespace nnn {
 
-  TrainingDataset::TrainingDataset(std::shared_ptr<const FloatMatrix> data,
-      std::shared_ptr<const FloatMatrix> labels,
-      TrainingDatasetParameters params)
+  TrainingDataset::TrainingDataset(
+      std::shared_ptr<FloatMatrix> data, std::shared_ptr<FloatMatrix> labels, TrainingDatasetParameters params)
       : m_data(data), m_labels(labels), m_params(params) {  //
 
     int datasetSize = m_data->GetColCount();

@@ -22,6 +22,13 @@ namespace nnn {
     }
   }
 
+  FloatMatrix::FloatMatrix(size_t rows, size_t cols, std::vector<float>&& data)
+      : m_rows(rows), m_cols(cols), m_transposed(false), m_data(std::move(data)) {
+    if (m_data.size() != rows * cols) {
+      throw FloatMatrixInvalidDimensionException("Data size must match matrix dimensions");
+    }
+  }
+
   FloatMatrix::FloatMatrix(size_t rows, size_t cols, float initialValue)
       : m_rows(rows), m_cols(cols), m_transposed(false), m_data(rows * cols, initialValue) {}
 
@@ -253,7 +260,7 @@ namespace nnn {
 
   std::string FloatMatrix::ToString() const {
     std::ostringstream oss;
-    oss << std::fixed << std::setprecision(3);
+    oss << std::fixed << std::setprecision(6);
     oss << "FloatMatrix (" << GetRowCount() << "x" << GetColCount() << ", transposed=" << std::boolalpha << m_transposed
         << ")\n";
 

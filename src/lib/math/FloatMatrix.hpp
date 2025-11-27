@@ -19,6 +19,8 @@ namespace nnn {
    public:
     FloatMatrix(size_t side);
     FloatMatrix(size_t rows, size_t cols);
+    FloatMatrix(size_t rows, size_t cols, const std::vector<float>& data);
+    FloatMatrix(size_t rows, size_t cols, std::vector<float>&& data);
 
     static std::optional<FloatMatrix> Create(size_t rows, size_t cols, const std::vector<float>& data);
     static FloatMatrix Ones(size_t rows, size_t cols);
@@ -74,7 +76,6 @@ namespace nnn {
     void Print() const;
 
    private:
-    FloatMatrix(size_t rows, size_t cols, const std::vector<float>& data);
     FloatMatrix(size_t rows, size_t cols, float initialValue);
 
     inline size_t ComputeIndex(size_t row, size_t col) const {

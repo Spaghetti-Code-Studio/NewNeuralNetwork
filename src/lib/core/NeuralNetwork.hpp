@@ -19,6 +19,7 @@ namespace nnn {
    */
   class NeuralNetwork {
    public:
+    // TODO: remove constructors so we can use mdoern C++ initializator
     struct HyperParameters {
       float learningRate = 0.001f;
       size_t epochs = 30;
@@ -59,7 +60,7 @@ namespace nnn {
       }
     };
 
-    Statistics Train(TrainingDataset& trainingDataset);
+    Statistics Train(TrainingDataset& trainingDataset, bool reportProgress = false);
 
    protected:
     std::unique_ptr<IOutputLayer> m_outputLayer;
