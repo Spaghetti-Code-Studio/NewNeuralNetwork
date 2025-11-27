@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 
+#include <Config.hpp>
 #include <CSVReader.hpp>
 #include <DataLoader.hpp>
 #include <DenseLayer.hpp>
@@ -15,21 +16,38 @@
 
 int main(int argc, char* argv[]) {  //
 
-  std::cout << "NewNeuralNetwork\n"
+  nnn::Config config;
+  auto configResult = config.LoadFromJSON("../../../../config.json");
+  if (configResult.has_error()) {
+    std::cout << configResult.error() << std::endl;
+    return -1;
+  }
+
+  std::cout << "--- NewNeuralNetwork ---\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
 
-  int seed = 42;
+  std::cout << config.ToString() << std::endl;
+
+  int seed = config.randomSeed;
   auto glorotInit = nnn::NormalGlorotWeightInitializer(seed);
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.01f, 5));  // learning rate, epochs
+  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(
+      config.learningRate, config.batchSize));  // TODO: use modern C++ initializator
 
-  size_t l1 = neuralNetwork.AddHiddenLayer(
-      std::make_unique<nnn::DenseLayer>(784, 128, std::make_unique<nnn::LeakyReLU>(0.05f), heInit));
-  size_t l2 = neuralNetwork.AddHiddenLayer(
-      std::make_unique<nnn::DenseLayer>(128, 54, std::make_unique<nnn::LeakyReLU>(0.05f), heInit));
-  size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(54, 10, glorotInit));
+  if (config.layers.size() == 0) {
+    std::cout << "No layers were defined. Neural network cannot be constructed!" << std::endl;
+    return -1;
+  }
+
+  for (int layerIndex = 0; layerIndex < config.layers.size() - 1; ++layerIndex) {
+    neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(config.layers[layerIndex].inputNumber,
+        config.layers[layerIndex].outputNumber, std::make_unique<nnn::LeakyReLU>(0.05f), heInit));
+  }
+  neuralNetwork.SetOutputLayer(
+      std::make_unique<nnn::SoftmaxDenseOutputLayer>(config.layers[config.layers.size() - 1].inputNumber,
+          config.layers[config.layers.size() - 1].outputNumber, glorotInit));
 
   nnn::Timer timer;
   timer.Start();
@@ -39,15 +57,14 @@ int main(int argc, char* argv[]) {  //
                                                  .trainingLabels = "../../../../data/fashion_mnist_train_labels.csv",
                                                  .testingFeatures = "../../../../data/fashion_mnist_test_vectors.csv",
                                                  .testingLabels = "../../../../data/fashion_mnist_test_labels.csv"},
-      reader, {.batchSize = 256, .validationSetFraction = 0.2f},
-      {.expectedClassNumber = 10, .shouldOneHotEncode = true, .normalizationFactor = 256});
+      reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
+      {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
 
   if (datasetResult.has_error()) {
     std::cout << datasetResult.error() << std::endl;
     return -1;
-  } else {
-    std::cout << "Loading of dataset took " << timer.End() << " seconds.\n" << std::endl;
   }
+  std::cout << "Loading of dataset took " << timer.End() << " seconds.\n" << std::endl;
 
   std::cout << "Training neural network..." << std::endl;
   timer.Start();
