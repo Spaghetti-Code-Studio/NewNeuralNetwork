@@ -26,6 +26,7 @@ target_include_directories(NewNeuralNetwork
         "${CMAKE_CURRENT_SOURCE_DIR}/math"
         "${CMAKE_CURRENT_SOURCE_DIR}/utils"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/result"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../vendor/json/nlohmann"
 )
 
 if (INCLUDE_TESTS STREQUAL "ON")
