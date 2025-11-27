@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {  //
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
   auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(
-      config.learningRate, config.batchSize));  // TODO: use modern C++ initializator
+      config.learningRate, config.epochs));  // TODO: use modern C++ initializator
 
   if (config.layers.size() == 0) {
     std::cout << "No layers were defined. Neural network cannot be constructed!" << std::endl;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {  //
 
   for (int layerIndex = 0; layerIndex < config.layers.size() - 1; ++layerIndex) {
     neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(config.layers[layerIndex].inputNumber,
-        config.layers[layerIndex].outputNumber, std::make_unique<nnn::LeakyReLU>(0.05f), heInit));
+        config.layers[layerIndex].outputNumber, std::make_unique<nnn::LeakyReLU>(), heInit));
   }
   neuralNetwork.SetOutputLayer(
       std::make_unique<nnn::SoftmaxDenseOutputLayer>(config.layers[config.layers.size() - 1].inputNumber,

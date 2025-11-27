@@ -1,8 +1,8 @@
 {
     "randomSeed": 42,
-    "learningRate": 0.01,
-    "epochs": 25,
-    "batchSize": 128,
+    "learningRate": 0.04,
+    "epochs": 3,
+    "batchSize": 256,
     "validationSetFraction": 0.2,
     "layers": [
         {
@@ -11,6 +11,14 @@
         },
         {
             "inputNumber": 256,
+            "outputNumber": 128
+        },
+        {
+            "inputNumber": 128,
+            "outputNumber": 64
+        },
+        {
+            "inputNumber": 64,
             "outputNumber": 10
         }
     ]
