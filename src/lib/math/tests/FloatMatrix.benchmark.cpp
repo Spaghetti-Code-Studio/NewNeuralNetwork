@@ -1,9 +1,11 @@
+// This file expects OpemMP installed.
+#ifdef _OPENMP
+
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <iostream>
 
-// This file expects OpemMP installed.
 #include <omp.h>
 
 #include "FloatMatrix.hpp"
@@ -24,3 +26,15 @@ TEST_CASE("Matrix multiplication performance") {
     return a * b;
   };
 }
+
+#else
+
+#include <catch2/catch_test_macros.hpp>
+
+#include <iostream>
+
+TEST_CASE("Matrix multiplication performance") {
+  std::cout << "[SKIPPED TEST]: This benchmark test expects OpenMP installed!" << std::endl;
+}
+
+#endif
