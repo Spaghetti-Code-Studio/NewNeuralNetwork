@@ -32,6 +32,16 @@ cpp::result<void, std::string> nnn::Config::LoadFromJSON(std::filesystem::path c
   }
 
   try {
+    unsigned int hardware_concurrency = std::thread::hardware_concurrency();
+    hardThreadsLimit = config.value("hardThreadsLimit", hardware_concurrency);
+    if (hardThreadsLimit > hardware_concurrency) {
+      hardThreadsLimit = hardware_concurrency;
+    }
+  } catch (const nlohmann::json::exception& e) {
+    return cpp::fail("Failed to parse 'hardThreadsLimit': " + std::string(e.what()));
+  }
+
+  try {
     learningRate = config.value("learningRate", 0.01f);
   } catch (const nlohmann::json::exception& e) {
     return cpp::fail("Failed to parse 'learningRate': " + std::string(e.what()));
@@ -95,6 +105,7 @@ std::string nnn::Config::ToString() const {  //
   oss << "--- NewNeuralNetwork Config ---\n";
   oss << "General settings:\n";
   oss << "  Random seed:            " << randomSeed << "\n";
+  oss << "  Hard Threads Limit:     " << hardThreadsLimit << "\n";
   oss << "  Learning rate:          " << learningRate << "\n";
   oss << "  Learning rate decay:    " << learningRateDecay << "\n";
   oss << "  Epochs:                 " << epochs << "\n";

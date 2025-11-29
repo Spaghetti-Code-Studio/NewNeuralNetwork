@@ -2,6 +2,10 @@
 #include <iostream>
 #include <memory>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include <Config.hpp>
 #include <CSVReader.hpp>
 #include <DataLoader.hpp>
@@ -28,6 +32,11 @@ int main(int argc, char* argv[]) {  //
             << std::endl;
 
   std::cout << config.ToString() << std::endl;
+
+#ifdef _OPENMP
+  omp_set_num_threads(config.hardThreadsLimit);
+  std::cout << "Parallel computing on.\n" << std::endl;
+#endif
 
   int seed = config.randomSeed;
   auto glorotInit = nnn::NormalGlorotWeightInitializer(seed);
