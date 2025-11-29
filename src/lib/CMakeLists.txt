@@ -34,6 +34,9 @@ if (INCLUDE_TESTS STREQUAL "ON")
     add_executable(FloatMatrixUnitTests "math/tests/FloatMatrix.test.cpp")
     target_link_libraries(FloatMatrixUnitTests PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
 
+     add_executable(FloatMatrixBenchmark "math/tests/FloatMatrix.benchmark.cpp")
+    target_link_libraries(FloatMatrixBenchmark PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
+
     add_executable(NeuralNetworkWorkflowsUnitTests "core/tests/NeuralNetworkWorkflows.test.cpp")
     target_link_libraries(NeuralNetworkWorkflowsUnitTests PRIVATE Catch2::Catch2WithMain NewNeuralNetwork)
 
@@ -42,6 +45,7 @@ if (INCLUDE_TESTS STREQUAL "ON")
 
     enable_testing()
     add_test(NAME FloatMatrixUnitTests COMMAND FloatMatrixUnitTests)
+    add_test(NAME FloatMatrixBenchmark COMMAND FloatMatrixBenchmark)
     add_test(NAME NeuralNetworkWorkflowsUnitTests COMMAND NeuralNetworkWorkflowsUnitTests)
     add_test(NAME CSVReaderUnitTests COMMAND CSVReaderUnitTests)
 endif()
