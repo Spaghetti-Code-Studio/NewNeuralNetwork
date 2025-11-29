@@ -1,0 +1,86 @@
+#include "DenseLayer.hpp"
+#include "FloatMatrix.hpp"
+#include "IWeightInitializer.hpp"
+
+namespace nnn {
+
+  DenseLayer::DenseLayer(size_t batchSize,
+      size_t inputSize,
+      size_t outputSize,
+      std::unique_ptr<IActivationFunction>&& activationFunction,
+      IWeightInitializer& initializer)
+      : m_inputSize(inputSize),
+        m_outputSize(outputSize),
+        m_biases(FloatMatrix::Zeroes(outputSize, 1)),
+        m_weights(initializer.Initialize(outputSize, inputSize)),
+        m_activationFunction(std::move(activationFunction)),
+        m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, batchSize)),
+        m_lastInput(FloatMatrix::Zeroes(inputSize, batchSize)),
+        m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1)),
+        m_weightVelocity(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_biasesVelocity(FloatMatrix::Zeroes(outputSize, 1))
+
+  {}
+
+  DenseLayer::DenseLayer(
+      size_t batchSize, size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction)
+      : m_inputSize(inputSize),
+        m_outputSize(outputSize),
+        m_biases(FloatMatrix::Zeroes(outputSize, 1)),
+        m_weights(FloatMatrix::Ones(outputSize, inputSize)),
+        m_activationFunction(std::move(activationFunction)),
+        m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, batchSize)),
+        m_lastInput(FloatMatrix::Zeroes(inputSize, batchSize)),
+        m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1)),
+        m_weightVelocity(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_biasesVelocity(FloatMatrix::Zeroes(outputSize, 1))
+
+  {}
+
+  DenseLayer::DenseLayer(size_t inputSize, size_t outputSize, std::unique_ptr<IActivationFunction>&& activationFunction)
+      : DenseLayer(1, inputSize, outputSize, std::move(activationFunction)) {}
+
+  DenseLayer::DenseLayer(size_t inputSize,
+      size_t outputSize,
+      std::unique_ptr<IActivationFunction>&& activationFunction,
+      IWeightInitializer& initializer)
+      : DenseLayer(1, inputSize, outputSize, std::move(activationFunction), initializer) {}
+
+  FloatMatrix DenseLayer::Forward(const FloatMatrix& inputVector) {  //
+
+    m_lastInput = inputVector;
+
+    auto result = m_weights * inputVector;
+    result.AddToAllCols(m_biases);
+    m_lastInnerPotential = result;
+
+    m_activationFunction->Evaluate(result);
+    return result;
+  }
+
+  FloatMatrix DenseLayer::Backward(const FloatMatrix& gradient) {
+    // slide 213
+    m_activationFunction->Derivative(m_lastInnerPotential);  // sigma'(inner potential)
+    auto hnc = m_lastInnerPotential.Hadamard(gradient);      // dE/dy * sigma'(inner potential)
+    m_lastInput.Transpose();
+
+    m_gradientWeigths = hnc * m_lastInput;  // dE/dw
+    m_gradientBias = FloatMatrix::SumColumns(hnc);
+
+    hnc.Transpose();
+    auto nextGradient = hnc * m_weights;  // dE/dy+1
+    nextGradient.Transpose();
+    return nextGradient;  // here the final dimensions are cols = batch, rows = input, where input is acutally same size
+                          // as output of next
+  }
+
+  void DenseLayer::Update(const FloatMatrix& weights, const FloatMatrix& biases) {
+    m_weights = weights;
+    m_biases = biases;
+  }
+  const FloatMatrix& DenseLayer::GetWeights() const { return m_weights; }
+
+  const FloatMatrix& DenseLayer::GetBiases() const { return m_biases; }
+}  // namespace nnn

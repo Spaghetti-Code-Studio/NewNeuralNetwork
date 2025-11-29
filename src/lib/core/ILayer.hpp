@@ -1,0 +1,23 @@
+#pragma once
+
+#include "FloatMatrix.hpp"
+
+namespace nnn {
+
+  class ILayer {
+   public:
+    virtual ~ILayer() = 0;
+    virtual FloatMatrix Forward(const FloatMatrix& inputVector) = 0;
+    virtual FloatMatrix Backward(const FloatMatrix& gradient) = 0;
+    virtual const FloatMatrix& GetBiases() const = 0;
+    virtual const FloatMatrix& GetWeights() const = 0;
+    virtual const FloatMatrix& GetWightsGradient() const = 0;
+    virtual const FloatMatrix& GetBiasesGradient() const = 0;
+    virtual void Update(const FloatMatrix& weights, const FloatMatrix& biases) = 0;
+
+    virtual FloatMatrix& GetWightsVelocity() = 0;
+    virtual FloatMatrix& GetBiasesVelocity() = 0;
+  };
+
+  inline ILayer::~ILayer() = default;
+}  // namespace nnn
