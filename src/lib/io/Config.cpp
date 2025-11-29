@@ -105,10 +105,10 @@ std::string nnn::Config::ToString() const {  //
   oss << "\nLayers (total " << layers.size() - 1 << " layers):\n";
 
   if (layers.empty()) {
-    oss << "    (No layers found)\n";
+    oss << "  (No layers found)\n";
   } else {
     for (size_t i = 0; i < layers.size() - 1; ++i) {
-      oss << "    Layer " << i + 1 << ": " << layers[i] << " -> " << layers[i + 1] << "\n";
+      oss << "  Layer " << i + 1 << ": " << layers[i] << " -> " << layers[i + 1] << "\n";
     }
   }
 
