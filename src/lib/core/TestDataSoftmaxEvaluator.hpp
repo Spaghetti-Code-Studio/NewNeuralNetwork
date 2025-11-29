@@ -13,7 +13,7 @@ namespace nnn::TestDataSoftmaxEvaluator {
     void Print() const {
       std::cout << "Percentage of correctly classified examples: "
                 << (static_cast<float>(correctlyClassifiedCount) / static_cast<float>(totalExamplesCount) * 100.0f)
-                << "%" << std::endl;
+                << "%." << std::endl;
     }
   };
 

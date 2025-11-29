@@ -4,6 +4,13 @@
 
 #include <memory>
 
+#include <iostream>
+
+#ifdef _OPENMP
+#include <thread>
+#include <omp.h>
+#endif
+
 #include "CrossEntropyWithSoftmax.hpp"
 #include "CSVReader.hpp"
 #include "DataLoader.hpp"
@@ -38,6 +45,16 @@ static inline LayerType* GetLayerAs(nnn::NeuralNetwork* neuralNetwork, size_t in
 }
 
 // // ------------------------------------------------------------------------------------------------
+
+TEST_CASE("Initialization") {
+#ifdef _OPENMP
+  int limit = std::min(std::thread::hardware_concurrency(), 8u);
+  omp_set_num_threads(limit);
+  std::cout << "Parallel computing on. Thread limit set to " << limit << " threads." << std::endl;
+#else
+  std::cout << "No parallel computations will be executed as OpenMP not found." << std::endl;
+#endif
+}
 
 TEST_CASE("1 Layer NN - Basic forward pass with ReLU") {  //
 
@@ -373,17 +390,17 @@ TEST_CASE("3 Layer NN - Recognize when a point is in a circle + Validation") {  
       neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(2, 8, std::make_unique<nnn::LeakyReLU>(), initR));
   size_t l2 =
       neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(8, 8, std::make_unique<nnn::LeakyReLU>(), initR));
-  
+
   size_t l3 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(8, 2, initS));
 
-   auto reader = std::make_shared<nnn::CSVReader>();
-  auto datasetResult = nnn::DataLoader::Load(
-      {.trainingFeatures = "../../../../../src/lib/core/tests/circleTrainingFeatures.csv",
-          .trainingLabels = "../../../../../src/lib/core/tests/circleTrainingLabels.csv",
-          .testingFeatures = "../../../../../src/lib/core/tests/circleTestFeatures.csv",
-          .testingLabels = "../../../../../src/lib/core/tests/circleTestLabels.csv"},
-      reader, {.batchSize = 45, .validationSetFraction = 0.1f},
-        {.expectedClassNumber = 2, .shouldOneHotEncode = true, .normalizationFactor=1.5f});
+  auto reader = std::make_shared<nnn::CSVReader>();
+  auto datasetResult =
+      nnn::DataLoader::Load({.trainingFeatures = "../../../../../src/lib/core/tests/circleTrainingFeatures.csv",
+                                .trainingLabels = "../../../../../src/lib/core/tests/circleTrainingLabels.csv",
+                                .testingFeatures = "../../../../../src/lib/core/tests/circleTestFeatures.csv",
+                                .testingLabels = "../../../../../src/lib/core/tests/circleTestLabels.csv"},
+          reader, {.batchSize = 45, .validationSetFraction = 0.1f},
+          {.expectedClassNumber = 2, .shouldOneHotEncode = true, .normalizationFactor = 1.5f});
 
   REQUIRE(datasetResult.has_value());
 

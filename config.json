@@ -1,25 +1,12 @@
 {
-    "randomSeed": 42,
-    "learningRate": 0.04,
-    "epochs": 3,
-    "batchSize": 256,
-    "validationSetFraction": 0.2,
-    "layers": [
-        {
-            "inputNumber": 784,
-            "outputNumber": 256
-        },
-        {
-            "inputNumber": 256,
-            "outputNumber": 128
-        },
-        {
-            "inputNumber": 128,
-            "outputNumber": 64
-        },
-        {
-            "inputNumber": 64,
-            "outputNumber": 10
-        }
-    ]
+  "randomSeed": 42,
+  "hardThreadsLimit": 12,
+  "learningRate": 0.02,
+  "learningRateDecay": 0.97,
+  "weightDecay": 0.002,
+  "momentum": 0.9,
+  "epochs": 14,
+  "batchSize": 166,
+  "validationSetFraction": 0.2,
+  "layers": [ 784, 186, 54, 10 ]
 }

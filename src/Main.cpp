@@ -1,6 +1,11 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <string>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include <Config.hpp>
 #include <CSVReader.hpp>
@@ -14,6 +19,14 @@
 #include <TestDataSoftmaxEvaluator.hpp>
 #include <Timer.hpp>
 
+// https://patorjk.com/software/taag/#p=display&f=Small&t=NewNeuralNetwork&x=none&v=4&h=4&w=80&we=false
+const std::string Logo = R"(
+  _  _            _  _                   _ _  _     _                  _   
+| \| |_____ __ _| \| |___ _  _ _ _ __ _| | \| |___| |___ __ _____ _ _| |__
+| .` / -_) V  V / .` / -_) || | '_/ _` | | .` / -_)  _\ V  V / _ \ '_| / /
+|_|\_\___|\_/\_/|_|\_\___|\_,_|_| \__,_|_|_|\_\___|\__|\_/\_/\___/_| |_\_\                                                                           
+)";
+
 int main(int argc, char* argv[]) {  //
 
   nnn::Config config;
@@ -23,31 +36,36 @@ int main(int argc, char* argv[]) {  //
     return -1;
   }
 
-  std::cout << "--- NewNeuralNetwork ---\n"
+  std::cout << Logo << "\nVersion 1.0.0\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
 
   std::cout << config.ToString() << std::endl;
+
+#ifdef _OPENMP
+  omp_set_num_threads(config.hardThreadsLimit);
+  std::cout << "Parallel computing on.\n" << std::endl;
+#endif
 
   int seed = config.randomSeed;
   auto glorotInit = nnn::NormalGlorotWeightInitializer(seed);
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
   auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(
-      config.learningRate, config.epochs));  // TODO: use modern C++ initializator
+      config.learningRate, config.learningRateDecay, config.weightDecay, config.momentum, config.epochs));  // TODO: use modern C++ initializator
 
-  if (config.layers.size() == 0) {
-    std::cout << "No layers were defined. Neural network cannot be constructed!" << std::endl;
+  if (config.layers.size() < 2) {
+    std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;
     return -1;
   }
 
-  for (int layerIndex = 0; layerIndex < config.layers.size() - 1; ++layerIndex) {
-    neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(config.layers[layerIndex].inputNumber,
-        config.layers[layerIndex].outputNumber, std::make_unique<nnn::LeakyReLU>(), heInit));
+  for (int i = 0; i < config.layers.size() - 2; ++i) {
+    neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(
+        config.layers[i], config.layers[i + 1], std::make_unique<nnn::LeakyReLU>(), heInit));
   }
-  neuralNetwork.SetOutputLayer(
-      std::make_unique<nnn::SoftmaxDenseOutputLayer>(config.layers[config.layers.size() - 1].inputNumber,
-          config.layers[config.layers.size() - 1].outputNumber, glorotInit));
+
+  neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(
+      config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
 
   nnn::Timer timer;
   timer.Start();
@@ -69,7 +87,7 @@ int main(int argc, char* argv[]) {  //
   std::cout << "Training neural network..." << std::endl;
   timer.Start();
   auto dataset = datasetResult.value();
-  auto statistics = neuralNetwork.Train(dataset.trainingDataset, true);
+  neuralNetwork.Train(dataset.trainingDataset, true);  // ignore statistics output - print it live
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
 
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;

@@ -26,8 +26,15 @@ namespace nnn {
 
   void NeuralNetwork::UpdateWeights() {
     ForEachLayerForward([&](ILayer& layer) {
-      FloatMatrix newWeights = layer.GetWeights() - (layer.GetWightsGradient() * m_params.learningRate);
-      FloatMatrix newBiases = layer.GetBiases() - (layer.GetBiasesGradient() * m_params.learningRate);
+      FloatMatrix& weightVelocity = layer.GetWightsVelocity();
+      FloatMatrix& biasVelocity = layer.GetBiasesVelocity();
+      
+      weightVelocity = weightVelocity * m_params.momentum + layer.GetWightsGradient();
+      biasVelocity = biasVelocity * m_params.momentum + layer.GetBiasesGradient();
+    
+      FloatMatrix newWeights = layer.GetWeights() * (1 - m_params.learningRate * m_params.weightDecay)
+                               - weightVelocity * m_params.learningRate;
+      FloatMatrix newBiases = layer.GetBiases() - biasVelocity * m_params.learningRate;
 
       for (size_t i = 0; i < newWeights.GetRowCount(); i++) {
         for (size_t j = 0; j < newWeights.GetColCount(); j++) {
@@ -63,7 +70,7 @@ namespace nnn {
 
       // compute loss for training dataset
       FloatMatrix trainPredictions = RunForwardPass(allTrainFeatures);
-      trainPredictions.MapInPlace([](float x) { return std::log(x); });
+      trainPredictions.MapInPlace([](float x) { return std::log(std::max(1e-10f, std::min(1.0f - 1e-10f, x))); });
       auto trainLoss = allTrainLabels.Hadamard(trainPredictions);
       trainLoss.Transpose();
       auto trainFlat = FloatMatrix::SumColumns(trainLoss);
@@ -72,9 +79,10 @@ namespace nnn {
       lossesTraining.push_back(-trainTotal(0, 0) / trainLoss.GetRowCount());
 
       // compute loss for validation dataset
+      // TODO: separate this into a function when doing final code cleanups
       if (trainingDataset.HasValidationDataset()) {
         auto actual = RunForwardPass(allValidationFeatures);
-        actual.MapInPlace([](float x) { return std::log(x); });
+        actual.MapInPlace([](float x) { return std::log(std::max(1e-10f, std::min(1.0f - 1e-10f, x))); });
         auto loss = allValidationLabels.Hadamard(actual);
         loss.Transpose();
         auto flat = FloatMatrix::SumColumns(loss);
@@ -85,15 +93,15 @@ namespace nnn {
 
       if (reportProgress) {
         std::cout << std::fixed << std::setprecision(4);
-        std::cout << "Epoch " << epoch << " - training loss: " << lossesTraining.back();
+        std::cout << "Epoch " << epoch + 1 << "/" << m_params.epochs << " - training loss: " << lossesTraining.back();
         if (trainingDataset.HasValidationDataset()) {
           std::cout << ", validation loss: " << lossesValidation.back();
-          std::cout << std::setprecision(2) << " (aprox. " << std::exp(-lossesValidation.back())*100 << "%)"; 
+          std::cout << std::setprecision(2) << " (aprox. " << std::exp(-lossesValidation.back()) * 100 << "%)";
         }
         std::cout << "." << std::endl;
       }
 
-
+      m_params.learningRate *= m_params.learningRateDecay;
     }
 
     return {lossesTraining, lossesValidation};

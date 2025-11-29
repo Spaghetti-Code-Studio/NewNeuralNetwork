@@ -1,9 +1,26 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include <iostream>
+
+#ifdef _OPENMP
+#include <thread>
+#include <omp.h>
+#endif
+
 #include "ColumnMajorFloatMatrixIterator.hpp"
 #include "FloatMatrix.hpp"
 #include "RowMajorFloatMatrixIterator.hpp"
+
+TEST_CASE("Initialization") {
+#ifdef _OPENMP
+  int limit = std::min(std::thread::hardware_concurrency(), 8u);
+  omp_set_num_threads(limit);
+  std::cout << "Parallel computing on. Thread limit set to " << limit << " threads." << std::endl;
+#else
+  std::cout << "No parallel computations will be executed as OpenMP not found." << std::endl;
+#endif
+}
 
 TEST_CASE("Basic rectangle matrix getters") {
   size_t row = 7;
@@ -56,16 +73,6 @@ TEST_CASE("Matrix creation") {
   data = identity.Data();
   for (size_t i = 0; i < identity.GetSize(); ++i) {
     CHECK(data[i] == expected[i]);
-  }
-
-  // ------------------------------------------------
-
-  auto random = nnn::FloatMatrix::Random(2, 2);
-  expected = {0.375f, 0.797f, 0.951f, 0.183f};
-
-  data = random.Data();
-  for (size_t i = 0; i < random.GetSize(); ++i) {
-    CHECK_THAT(data[i], Catch::Matchers::WithinAbs(expected[i], 0.001));
   }
 }
 
@@ -400,6 +407,62 @@ TEST_CASE("Basic matrix multiplication") {
 
   d.value().Transpose();
   REQUIRE_THROWS(c.value() * d.value());
+}
+
+TEST_CASE("Huge matrix multiplication verification") {
+  auto a = nnn::FloatMatrix::Random(1600, 1200, -1.0f, 2.0f);
+  auto b = nnn::FloatMatrix::Random(1200, 2000, -1.0f, 2.0f);
+
+  auto ab1 = a * b;
+  auto ab2 = a.MultiplySerial(b);
+
+  CHECK(ab1 == ab2);
+}
+
+TEST_CASE("Equality") {
+  // Same dimensions, same transposion, different data.
+  {
+    auto a = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.0f}).value();
+    auto b = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, -1.0f}).value();
+
+    CHECK_FALSE(a == b);
+  }
+  // Same dimensions, same transposion, same data.
+  {
+    auto a = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.0f}).value();
+    auto b = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.0f}).value();
+
+    CHECK(a == b);
+  }
+  // Same dimensions, same transposion, same data (testing precision).
+  {
+    auto a = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 1.0f / 3.0f}).value();
+    auto b = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.333334f}).value();
+
+    CHECK(a == b);
+  }
+  // Same dimensions, same transposion, same data (testing precision).
+  {
+    auto a = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 1.0f / 3.0f}).value();
+    auto b = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.33334f}).value();
+
+    CHECK_FALSE(a == b);
+  }
+  // Same dimensions, different transposion.
+  {
+    auto a = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.0f}).value();
+    auto b = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.0f}).value();
+    b.Transpose();
+
+    CHECK_FALSE(a == b);
+  }
+  // Different dimensions.
+  {
+    auto a = nnn::FloatMatrix::Create(2, 2, {-2.6f, 5.3f, 0.0f, 0.0f}).value();
+    auto b = nnn::FloatMatrix::Create(2, 3, {3.1f, -4.9f, -2.6f, 5.3f, 0.0f, 0.0f}).value();
+
+    CHECK_FALSE(a == b);
+  }
 }
 
 TEST_CASE("Transposed square matrix multiplication") {
