@@ -1,9 +1,10 @@
 {
-    "randomSeed": 42,
-    "learningRate": 0.15,
-    "learningRateDecay": 0.9,
-    "epochs": 15,
-    "batchSize": 126,
-    "validationSetFraction": 0.2,
-    "layers": [784, 176, 64, 26, 10]
+  "randomSeed": 42,
+  "hardThreadsLimit": 12,
+  "learningRate": 0.15,
+  "learningRateDecay": 0.9,
+  "epochs": 15,
+  "batchSize": 126,
+  "validationSetFraction": 0.2,
+  "layers": [ 784, 176, 64, 26, 10 ]
 }

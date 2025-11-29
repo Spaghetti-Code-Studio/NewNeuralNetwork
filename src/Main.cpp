@@ -1,6 +1,11 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <string>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include <Config.hpp>
 #include <CSVReader.hpp>
@@ -14,6 +19,13 @@
 #include <TestDataSoftmaxEvaluator.hpp>
 #include <Timer.hpp>
 
+const std::string Logo = R"(
+  _  _            _  _                   _ _  _     _                  _   
+| \| |_____ __ _| \| |___ _  _ _ _ __ _| | \| |___| |___ __ _____ _ _| |__
+| .` / -_) V  V / .` / -_) || | '_/ _` | | .` / -_)  _\ V  V / _ \ '_| / /
+|_|\_\___|\_/\_/|_|\_\___|\_,_|_| \__,_|_|_|\_\___|\__|\_/\_/\___/_| |_\_\                                                                           
+)";
+
 int main(int argc, char* argv[]) {  //
 
   nnn::Config config;
@@ -23,11 +35,16 @@ int main(int argc, char* argv[]) {  //
     return -1;
   }
 
-  std::cout << "--- NewNeuralNetwork ---\n"
+  std::cout << Logo << "Version 1.0.0\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
 
   std::cout << config.ToString() << std::endl;
+
+#ifdef _OPENMP
+  omp_set_num_threads(config.hardThreadsLimit);
+  std::cout << "Parallel computing on.\n" << std::endl;
+#endif
 
   int seed = config.randomSeed;
   auto glorotInit = nnn::NormalGlorotWeightInitializer(seed);

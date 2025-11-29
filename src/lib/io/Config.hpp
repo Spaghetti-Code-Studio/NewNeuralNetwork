@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <string>
+#include <thread>
 
 #include <result.hpp>
 
@@ -10,6 +11,7 @@ namespace nnn {
   class Config {
    public:
     int randomSeed = 42;
+    int hardThreadsLimit = std::thread::hardware_concurrency();
     float learningRate = 0.01f;
     float learningRateDecay = 1.0f;
     size_t epochs = 10;
