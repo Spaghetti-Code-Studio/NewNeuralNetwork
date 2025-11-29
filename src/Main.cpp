@@ -8,6 +8,7 @@
 #endif
 
 #include <Config.hpp>
+#include <CSVLabelWriter.hpp>
 #include <CSVReader.hpp>
 #include <DataLoader.hpp>
 #include <DenseLayer.hpp>
@@ -19,9 +20,10 @@
 #include <TestDataSoftmaxEvaluator.hpp>
 #include <Timer.hpp>
 
-#include <CSVLabelWriter.hpp>
-
-// https://patorjk.com/software/taag/#p=display&f=Small&t=NewNeuralNetwork&x=none&v=4&h=4&w=80&we=false
+/**
+ * @brief Logo for the program. Source:
+ * https://patorjk.com/software/taag/#p=display&f=Small&t=NewNeuralNetwork&x=none&v=4&h=4&w=80&we=false.
+ */
 const std::string Logo = R"(
  _  _            _  _                   _ _  _     _                  _   
 | \| |_____ __ _| \| |___ _  _ _ _ __ _| | \| |___| |___ __ _____ _ _| |__
@@ -32,7 +34,13 @@ const std::string Logo = R"(
 int main(int argc, char* argv[]) {  //
 
   nnn::Config config;
+
+#ifdef IS_PRODUCTION_BUILD
   auto configResult = config.LoadFromJSON("./config.json");
+#else
+  auto configResult = config.LoadFromJSON("../../../../config.json");
+#endif
+
   if (configResult.has_error()) {
     std::cout << configResult.error() << std::endl;
     return -1;
@@ -71,15 +79,26 @@ int main(int argc, char* argv[]) {  //
       config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
 
   nnn::Timer timer;
+
   timer.Start();
   std::cout << "Loading dataset..." << std::endl;
   auto reader = std::make_shared<nnn::CSVReader>();
+
+#ifdef IS_PRODUCTION_BUILD
   auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "./data/fashion_mnist_train_vectors.csv",
                                                  .trainingLabels = "./data/fashion_mnist_train_labels.csv",
                                                  .testingFeatures = "./data/fashion_mnist_test_vectors.csv",
                                                  .testingLabels = "./data/fashion_mnist_test_labels.csv"},
       reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
       {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
+#else
+  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "../../../../data/fashion_mnist_train_vectors.csv",
+                                                 .trainingLabels = "../../../../data/fashion_mnist_train_labels.csv",
+                                                 .testingFeatures = "../../../../data/fashion_mnist_test_vectors.csv",
+                                                 .testingLabels = "../../../../data/fashion_mnist_test_labels.csv"},
+      reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
+      {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
+#endif
 
   if (datasetResult.has_error()) {
     std::cout << datasetResult.error() << std::endl;
@@ -87,29 +106,35 @@ int main(int argc, char* argv[]) {  //
   }
   std::cout << "Loading of dataset took " << timer.End() << " seconds.\n" << std::endl;
 
-  std::cout << "Training neural network..." << std::endl;
   timer.Start();
+  std::cout << "Training neural network..." << std::endl;
   auto dataset = datasetResult.value();
-  neuralNetwork.Train(dataset.trainingDataset, true);  // ignore statistics output - print it live
+  neuralNetwork.Train(dataset.trainingDataset, true);
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
 
   auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
 
+#ifndef IS_PRODUCTION_BUILD
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
   auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(result, *dataset.testingLabels);
   evaluation.Print();
+#endif
 
-  std::cout << "\nWriting results into CSV file..." << std::endl;
   timer.Start();
-
+  std::cout << "\nWriting results into CSV file..." << std::endl;
   nnn::CSVLabelsWriter writer;
+
+#ifdef IS_PRODUCTION_BUILD
   auto writeResult = writer.Write("./test_predictions.csv", result);
+#else
+  auto writeResult = writer.Write("../../../../test_predictions.csv", result);
+#endif
 
   if (writeResult.has_error()) {
     std::cout << writeResult.error() << std::endl;
     return -1;
   }
-  std::cout << "Writing results took " << timer.End() << " seconds.\n" << std::endl;
+  std::cout << "Writing results took " << timer.End() << " seconds." << std::endl;
 
   return 0;
 }
