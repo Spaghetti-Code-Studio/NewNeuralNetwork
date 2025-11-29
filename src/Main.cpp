@@ -93,13 +93,27 @@ int main(int argc, char* argv[]) {  //
   neuralNetwork.Train(dataset.trainingDataset, true);  // ignore statistics output - print it live
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
 
-  std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
   auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
+
+#ifndef IS_PRODUCTION_BUILD
+
+  std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
   auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(result, *dataset.testingLabels);
   evaluation.Print();
 
+#endif
+
+  std::cout << "\nWriting results into CSV file..." << std::endl;
+  timer.Start();
+
   nnn::CSVLabelsWriter writer;
-  writer.Write("../../../../example_test_predictions.csv", result);
+  auto writeResult = writer.Write("../../../../example_test_predictions.csv", result);
+
+  if (writeResult.has_error()) {
+    std::cout << writeResult.error() << std::endl;
+    return -1;
+  }
+  std::cout << "Writing results took " << timer.End() << " seconds.\n" << std::endl;
 
   return 0;
 }
