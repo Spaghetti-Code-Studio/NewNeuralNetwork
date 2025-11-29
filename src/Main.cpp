@@ -19,6 +19,7 @@
 #include <TestDataSoftmaxEvaluator.hpp>
 #include <Timer.hpp>
 
+#include <CSVLabelWriter.hpp>
 
 // https://patorjk.com/software/taag/#p=display&f=Small&t=NewNeuralNetwork&x=none&v=4&h=4&w=80&we=false
 const std::string Logo = R"(
@@ -52,8 +53,9 @@ int main(int argc, char* argv[]) {  //
   auto glorotInit = nnn::NormalGlorotWeightInitializer(seed);
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(
-      config.learningRate, config.learningRateDecay, config.weightDecay, config.momentum, config.epochs));  // TODO: use modern C++ initializator
+  auto neuralNetwork =
+      nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(config.learningRate, config.learningRateDecay,
+          config.weightDecay, config.momentum, config.epochs));  // TODO: use modern C++ initializator
 
   if (config.layers.size() < 2) {
     std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;
@@ -95,6 +97,9 @@ int main(int argc, char* argv[]) {  //
   auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
   auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(result, *dataset.testingLabels);
   evaluation.Print();
+
+  nnn::CSVLabelsWriter writer;
+  writer.Write("../../../../example_test_predictions.csv", result);
 
   return 0;
 }
