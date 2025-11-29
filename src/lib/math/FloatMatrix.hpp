@@ -52,6 +52,7 @@ namespace nnn {
     FloatMatrix MultiplySerial(const FloatMatrix& other) const;
     FloatMatrix operator*(float scalar) const;
     FloatMatrix& operator*=(float scalar);
+    bool operator==(const FloatMatrix& other) const;
 
     FloatMatrix Map(const std::function<float(float)>& func) const;
     void MapInPlace(const std::function<float(float)>& func);
