@@ -28,8 +28,7 @@ const std::string Logo = R"(
  _  _            _  _                   _ _  _     _                  _   
 | \| |_____ __ _| \| |___ _  _ _ _ __ _| | \| |___| |___ __ _____ _ _| |__
 | .` / -_) V  V / .` / -_) || | '_/ _` | | .` / -_)  _\ V  V / _ \ '_| / /
-|_|\_\___|\_/\_/|_|\_\___|\_,_|_| \__,_|_|_|\_\___|\__|\_/\_/\___/_| |_\_\ 
-)";
+|_|\_\___|\_/\_/|_|\_\___|\_,_|_| \__,_|_|_|\_\___|\__|\_/\_/\___/_| |_\_\)";
 
 int main(int argc, char* argv[]) {  //
 
@@ -46,7 +45,7 @@ int main(int argc, char* argv[]) {  //
     return -1;
   }
 
-  std::cout << Logo << "\nVersion 1.0.0\n"
+  std::cout << Logo << "\n\nVersion 1.0.0\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
 
