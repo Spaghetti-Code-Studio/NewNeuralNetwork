@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# module add gcc
-# module add cmake
+module add gcc
+module add cmake
 
 nice -n 19 ./scripts/run-production.sh
 
