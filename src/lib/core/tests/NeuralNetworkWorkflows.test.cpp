@@ -4,6 +4,13 @@
 
 #include <memory>
 
+#include <iostream>
+
+#ifdef _OPENMP
+#include <thread>
+#include <omp.h>
+#endif
+
 #include "CrossEntropyWithSoftmax.hpp"
 #include "CSVReader.hpp"
 #include "DataLoader.hpp"
@@ -38,6 +45,16 @@ static inline LayerType* GetLayerAs(nnn::NeuralNetwork* neuralNetwork, size_t in
 }
 
 // // ------------------------------------------------------------------------------------------------
+
+TEST_CASE("Initialization") {
+#ifdef _OPENMP
+  int limit = std::min(std::thread::hardware_concurrency(), 8u);
+  omp_set_num_threads(limit);
+  std::cout << "Parallel computing on. Thread limit set to " << limit << " threads." << std::endl;
+#else
+  std::cout << "No parallel computations will be executed as OpenMP not found." << std::endl;
+#endif
+}
 
 TEST_CASE("1 Layer NN - Basic forward pass with ReLU") {  //
 
