@@ -26,13 +26,13 @@ const std::string Logo = R"(
  _  _            _  _                   _ _  _     _                  _   
 | \| |_____ __ _| \| |___ _  _ _ _ __ _| | \| |___| |___ __ _____ _ _| |__
 | .` / -_) V  V / .` / -_) || | '_/ _` | | .` / -_)  _\ V  V / _ \ '_| / /
-|_|\_\___|\_/\_/|_|\_\___|\_,_|_| \__,_|_|_|\_\___|\__|\_/\_/\___/_| |_\_\                                                                           
+|_|\_\___|\_/\_/|_|\_\___|\_,_|_| \__,_|_|_|\_\___|\__|\_/\_/\___/_| |_\_\ 
 )";
 
 int main(int argc, char* argv[]) {  //
 
   nnn::Config config;
-  auto configResult = config.LoadFromJSON("../../../../config.json");
+  auto configResult = config.LoadFromJSON("./config.json");
   if (configResult.has_error()) {
     std::cout << configResult.error() << std::endl;
     return -1;
@@ -74,10 +74,10 @@ int main(int argc, char* argv[]) {  //
   timer.Start();
   std::cout << "Loading dataset..." << std::endl;
   auto reader = std::make_shared<nnn::CSVReader>();
-  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "../../../../data/fashion_mnist_train_vectors.csv",
-                                                 .trainingLabels = "../../../../data/fashion_mnist_train_labels.csv",
-                                                 .testingFeatures = "../../../../data/fashion_mnist_test_vectors.csv",
-                                                 .testingLabels = "../../../../data/fashion_mnist_test_labels.csv"},
+  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "./data/fashion_mnist_train_vectors.csv",
+                                                 .trainingLabels = "./data/fashion_mnist_train_labels.csv",
+                                                 .testingFeatures = "./data/fashion_mnist_test_vectors.csv",
+                                                 .testingLabels = "./data/fashion_mnist_test_labels.csv"},
       reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
       {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
 
@@ -95,19 +95,15 @@ int main(int argc, char* argv[]) {  //
 
   auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
 
-#ifndef IS_PRODUCTION_BUILD
-
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
   auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(result, *dataset.testingLabels);
   evaluation.Print();
-
-#endif
 
   std::cout << "\nWriting results into CSV file..." << std::endl;
   timer.Start();
 
   nnn::CSVLabelsWriter writer;
-  auto writeResult = writer.Write("../../../../example_test_predictions.csv", result);
+  auto writeResult = writer.Write("./test_predictions.csv", result);
 
   if (writeResult.has_error()) {
     std::cout << writeResult.error() << std::endl;
