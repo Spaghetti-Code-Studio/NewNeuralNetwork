@@ -33,5 +33,10 @@ if (INCLUDE_TESTS STREQUAL "ON")
     FetchContent_MakeAvailable(Catch2)
 endif()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release" AND INCLUDE_TESTS STREQUAL "OFF")
+    add_compile_definitions(IS_PRODUCTION_BUILD)
+    message(STATUS "Configuring for production build")
+endif()
+
 add_subdirectory(src/lib)
 add_subdirectory(src)
