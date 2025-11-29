@@ -7,6 +7,7 @@
 #include <random>
 #include <sstream>
 #include <utility>
+#include <cstdlib>
 
 namespace nnn {
 
@@ -163,7 +164,34 @@ namespace nnn {
     return *this;
   }
 
-  FloatMatrix FloatMatrix::operator*(const FloatMatrix& other) const {
+  FloatMatrix FloatMatrix::operator*(const FloatMatrix& other) const {  //
+
+    if (m_cols != other.m_rows) {
+      throw FloatMatrixInvalidDimensionException(
+          "Cannot multiply matrices when column count does not match row count.");
+    }
+
+#ifdef _OPENMP
+    FloatMatrix result = FloatMatrix(m_rows, other.m_cols);
+#pragma omp parallel for
+    for (int i = 0; i < m_rows; ++i) {
+      for (int j = 0; j < other.m_cols; ++j) {
+        float sum = 0.0f;
+        for (int k = 0; k < m_cols; ++k) {
+          sum += (*this)(i, k) * other(k, j);
+        }
+        result(i, j) = sum;
+      }
+    }
+
+    return result;
+#else
+    return this->MultiplySerial(other);
+#endif
+  }
+
+  FloatMatrix FloatMatrix::MultiplySerial(const FloatMatrix& other) const {  //
+
     if (m_cols != other.m_rows) {
       throw FloatMatrixInvalidDimensionException(
           "Cannot multiply matrices when column count does not match row count.");

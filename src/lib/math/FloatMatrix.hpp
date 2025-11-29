@@ -49,6 +49,7 @@ namespace nnn {
     FloatMatrix operator-(const FloatMatrix& other) const;
     FloatMatrix& operator-=(const FloatMatrix& other);
     FloatMatrix operator*(const FloatMatrix& other) const;
+    FloatMatrix MultiplySerial(const FloatMatrix& other) const;
     FloatMatrix operator*(float scalar) const;
     FloatMatrix& operator*=(float scalar);
 
