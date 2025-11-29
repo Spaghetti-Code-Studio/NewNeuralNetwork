@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <iostream>
 
+#include "TestDataSoftmaxEvaluator.hpp"
+
 namespace nnn {
 
   size_t NeuralNetwork::AddHiddenLayer(std::unique_ptr<ILayer>&& layer) {
@@ -89,18 +91,19 @@ namespace nnn {
         flat.Transpose();
         auto total = FloatMatrix::SumColumns(flat);
         lossesValidation.push_back(-total(0, 0) / loss.GetRowCount());
-      }
 
-      if (reportProgress) {
-        std::cout << std::fixed << std::setprecision(4);
-        std::cout << "Epoch " << epoch + 1 << "/" << m_params.epochs << " - training loss: " << lossesTraining.back();
-        if (trainingDataset.HasValidationDataset()) {
-          std::cout << ", validation loss: " << lossesValidation.back();
-          std::cout << std::setprecision(2) << " (aprox. " << std::exp(-lossesValidation.back()) * 100 << "%)";
+        if (reportProgress) {
+          auto result = nnn::TestDataSoftmaxEvaluator::Evaluate(actual, allValidationLabels);
+
+          std::cout << std::fixed << std::setprecision(4);
+          std::cout << "Epoch " << epoch + 1 << "/" << m_params.epochs << " - training loss: " << lossesTraining.back();
+          if (trainingDataset.HasValidationDataset()) {
+            std::cout << ", validation loss: " << lossesValidation.back();
+            std::cout << std::setprecision(2) << " (aprox. " << (static_cast<float>(result.correctlyClassifiedCount) / result.totalExamplesCount) * 100 << "%)";
+          }
+          std::cout << "." << std::endl;
         }
-        std::cout << "." << std::endl;
       }
-
       m_params.learningRate *= m_params.learningRateDecay;
     }
 

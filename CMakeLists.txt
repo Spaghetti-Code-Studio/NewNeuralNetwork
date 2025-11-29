@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.6...4.1)
 
 project(NewNeuralNetworkProject VERSION 1.0 LANGUAGES CXX)
 
@@ -31,6 +31,11 @@ if (INCLUDE_TESTS STREQUAL "ON")
         GIT_TAG v3.11.0
     )
     FetchContent_MakeAvailable(Catch2)
+endif()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release" AND INCLUDE_TESTS STREQUAL "OFF")
+    add_compile_definitions(IS_PRODUCTION_BUILD)
+    message(STATUS "Configuring for production build")
 endif()
 
 add_subdirectory(src/lib)

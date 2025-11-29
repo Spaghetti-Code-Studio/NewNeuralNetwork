@@ -1,2 +1,2 @@
 ./scripts/build-debug.sh
-./build/src/NewNeuralNetworkProgram
+./build/src/Main

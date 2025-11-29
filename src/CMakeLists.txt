@@ -1,5 +1,3 @@
-add_executable(NewNeuralNetworkProgram NewNeuralNetworkProgram.cpp)
 add_executable(Main Main.cpp)
 
-target_link_libraries(NewNeuralNetworkProgram PRIVATE NewNeuralNetwork)
 target_link_libraries(Main PRIVATE NewNeuralNetwork)

@@ -117,7 +117,7 @@ std::string nnn::Config::ToString() const {  //
   oss << "--- NewNeuralNetwork Config ---\n";
   oss << "General settings:\n";
   oss << "  Random seed:            " << randomSeed << "\n";
-  oss << "  Hard Threads Limit:     " << hardThreadsLimit << "\n";
+  oss << "  Hard threads limit:     " << hardThreadsLimit << "\n";
   oss << "  Learning rate:          " << learningRate << "\n";
   oss << "  Learning rate decay:    " << learningRateDecay << "\n";
   oss << "  Weight decay:           " << weightDecay << "\n";
