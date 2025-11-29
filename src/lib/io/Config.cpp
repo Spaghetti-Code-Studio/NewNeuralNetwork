@@ -54,6 +54,18 @@ cpp::result<void, std::string> nnn::Config::LoadFromJSON(std::filesystem::path c
   }
 
   try {
+    weightDecay = config.value("weightDecay", 1.0f);
+  } catch (const nlohmann::json::exception& e) {
+    return cpp::fail("Failed to parse 'weightDecay': " + std::string(e.what()));
+  }
+
+  try {
+    momentum = config.value("momentum", 0.0f);
+  } catch (const nlohmann::json::exception& e) {
+    return cpp::fail("Failed to parse 'momentum': " + std::string(e.what()));
+  }
+
+  try {
     epochs = config.value("epochs", 10);
   } catch (const nlohmann::json::exception& e) {
     return cpp::fail("Failed to parse 'epochs': " + std::string(e.what()));
@@ -108,6 +120,8 @@ std::string nnn::Config::ToString() const {  //
   oss << "  Hard Threads Limit:     " << hardThreadsLimit << "\n";
   oss << "  Learning rate:          " << learningRate << "\n";
   oss << "  Learning rate decay:    " << learningRateDecay << "\n";
+  oss << "  Weight decay:           " << weightDecay << "\n";
+  oss << "  Momentum:               " << momentum << "\n";
   oss << "  Epochs:                 " << epochs << "\n";
   oss << "  Batch size:             " << batchSize << "\n";
   oss << "  Validation fraction:    " << validationSetFraction << "\n";

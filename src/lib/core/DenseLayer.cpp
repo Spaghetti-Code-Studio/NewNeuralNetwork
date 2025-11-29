@@ -17,7 +17,9 @@ namespace nnn {
         m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, batchSize)),
         m_lastInput(FloatMatrix::Zeroes(inputSize, batchSize)),
         m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
-        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1))
+        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1)),
+        m_weightVelocity(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_biasesVelocity(FloatMatrix::Zeroes(outputSize, 1))
 
   {}
 
@@ -31,7 +33,9 @@ namespace nnn {
         m_lastInnerPotential(FloatMatrix::Zeroes(outputSize, batchSize)),
         m_lastInput(FloatMatrix::Zeroes(inputSize, batchSize)),
         m_gradientWeigths(FloatMatrix::Zeroes(outputSize, inputSize)),
-        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1))
+        m_gradientBias(FloatMatrix::Zeroes(outputSize, 1)),
+        m_weightVelocity(FloatMatrix::Zeroes(outputSize, inputSize)),
+        m_biasesVelocity(FloatMatrix::Zeroes(outputSize, 1))
 
   {}
 

@@ -19,6 +19,7 @@
 #include <TestDataSoftmaxEvaluator.hpp>
 #include <Timer.hpp>
 
+// https://patorjk.com/software/taag/#p=display&f=Small&t=NewNeuralNetwork&x=none&v=4&h=4&w=80&we=false
 const std::string Logo = R"(
   _  _            _  _                   _ _  _     _                  _   
 | \| |_____ __ _| \| |___ _  _ _ _ __ _| | \| |___| |___ __ _____ _ _| |__
@@ -35,7 +36,7 @@ int main(int argc, char* argv[]) {  //
     return -1;
   }
 
-  std::cout << Logo << "Version 1.0.0\n"
+  std::cout << Logo << "\nVersion 1.0.0\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
 
@@ -51,7 +52,7 @@ int main(int argc, char* argv[]) {  //
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
   auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(
-      config.learningRate, config.learningRateDecay, config.epochs));  // TODO: use modern C++ initializator
+      config.learningRate, config.learningRateDecay, config.weightDecay, config.momentum, config.epochs));  // TODO: use modern C++ initializator
 
   if (config.layers.size() < 2) {
     std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;

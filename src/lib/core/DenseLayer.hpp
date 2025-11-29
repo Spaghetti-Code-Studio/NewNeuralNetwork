@@ -42,6 +42,9 @@ namespace nnn {
     const FloatMatrix& GetBiases() const override;
     inline const FloatMatrix& GetWightsGradient() const override { return m_gradientWeigths; }
     inline const FloatMatrix& GetBiasesGradient() const override { return m_gradientBias; }
+    inline FloatMatrix& GetWightsVelocity() override { return m_weightVelocity;}
+    inline FloatMatrix& GetBiasesVelocity() override { return m_biasesVelocity;}
+
 
    protected:
     size_t m_inputSize;
@@ -53,5 +56,7 @@ namespace nnn {
     FloatMatrix m_lastInput;
     FloatMatrix m_gradientWeigths;
     FloatMatrix m_gradientBias;
+    FloatMatrix m_weightVelocity;
+    FloatMatrix m_biasesVelocity;
   };
 }  // namespace nnn

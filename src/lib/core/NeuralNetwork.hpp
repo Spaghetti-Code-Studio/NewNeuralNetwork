@@ -23,13 +23,15 @@ namespace nnn {
     struct HyperParameters {
       float learningRate = 0.001f;
       float learningRateDecay = 1.0f;
+      float weightDecay = 1.0f;
+      float momentum = 0.0f;
       size_t epochs = 30;
 
       HyperParameters() = default;
       HyperParameters(float learningRate) : learningRate(learningRate) {}
       HyperParameters(float learningRate, size_t epochs) : learningRate(learningRate), epochs(epochs) {}
-      HyperParameters(float learningRate, float learningRateDecay, size_t epochs)
-          : learningRate(learningRate), learningRateDecay(learningRateDecay), epochs(epochs) {}
+      HyperParameters(float learningRate, float learningRateDecay, float weightDecay, float momentum, size_t epochs)
+          : learningRate(learningRate), learningRateDecay(learningRateDecay), weightDecay(weightDecay), momentum(momentum), epochs(epochs) {}
     };
 
     NeuralNetwork() = default;
