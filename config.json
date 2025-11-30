@@ -1,12 +1,12 @@
 {
-  "randomSeed": 0,
+  "randomSeed": 42,
   "hardThreadsLimit": 8,
-  "learningRate": 0.03,
-  "learningRateDecay": 0.98,
-  "weightDecay": 0.002,
-  "momentum": 0.75,
-  "epochs": 30,
-  "batchSize": 156,
+  "learningRate": 0.034,
+  "learningRateDecay": 0.96,
+  "weightDecay": 0.003,
+  "momentum": 0.8,
+  "epochs": 26,
+  "batchSize": 146,
   "validationSetFraction": 0.2,
   "layers": [ 784, 186, 74, 26, 10 ]
 }
