@@ -43,10 +43,10 @@ namespace nnn {
 
   void NeuralNetwork::UpdateWeights() {
     ForEachLayerForward([&](ILayer& layer) {
-      FloatMatrix& weightVelocity = layer.GetWightsVelocity();
+      FloatMatrix& weightVelocity = layer.GetWeightsVelocity();
       FloatMatrix& biasVelocity = layer.GetBiasesVelocity();
       
-      weightVelocity = weightVelocity * m_params.momentum + layer.GetWightsGradient();
+      weightVelocity = weightVelocity * m_params.momentum + layer.GetWeightsGradient();
       biasVelocity = biasVelocity * m_params.momentum + layer.GetBiasesGradient();
     
       FloatMatrix newWeights = layer.GetWeights() * (1 - m_params.learningRate * m_params.weightDecay)
