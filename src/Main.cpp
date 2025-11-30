@@ -35,10 +35,12 @@ int main(int argc, char* argv[]) {  //
   nnn::Config config;
 
 #ifdef IS_PRODUCTION_BUILD
-  auto configResult = config.LoadFromJSON("./config.json");
+  const std::string PREFIX = "./";
 #else
-  auto configResult = config.LoadFromJSON("../../../../config.json");
+  const std::string PREFIX = "../../../../";
 #endif
+
+  auto configResult = config.LoadFromJSON(PREFIX + "config.json");
 
   if (configResult.has_error()) {
     std::cout << configResult.error() << std::endl;
@@ -53,7 +55,7 @@ int main(int argc, char* argv[]) {  //
 
 #ifdef _OPENMP
   omp_set_num_threads(config.hardThreadsLimit);
-  std::cout << "Parallel computing on.\n" << std::endl;
+  std::cout << "Parallel computing is enabled.\n" << std::endl;
 #endif
 
   int seed = config.randomSeed;
@@ -73,7 +75,6 @@ int main(int argc, char* argv[]) {  //
     neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(
         config.layers[i], config.layers[i + 1], std::make_unique<nnn::LeakyReLU>(), heInit));
   }
-
   neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(
       config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
 
@@ -83,21 +84,13 @@ int main(int argc, char* argv[]) {  //
   std::cout << "Loading dataset..." << std::endl;
   auto reader = std::make_shared<nnn::CSVReader>();
 
-#ifdef IS_PRODUCTION_BUILD
-  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "./data/fashion_mnist_train_vectors.csv",
-                                                 .trainingLabels = "./data/fashion_mnist_train_labels.csv",
-                                                 .testingFeatures = "./data/fashion_mnist_test_vectors.csv",
-                                                 .testingLabels = "./data/fashion_mnist_test_labels.csv"},
+
+  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = PREFIX + "data/fashion_mnist_train_vectors.csv",
+                                                 .trainingLabels = PREFIX + "data/fashion_mnist_train_labels.csv",
+                                                 .testingFeatures = PREFIX + "data/fashion_mnist_test_vectors.csv",
+                                                 .testingLabels = PREFIX + "data/fashion_mnist_test_labels.csv"},
       reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
       {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
-#else
-  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "../../../../data/fashion_mnist_train_vectors.csv",
-                                                 .trainingLabels = "../../../../data/fashion_mnist_train_labels.csv",
-                                                 .testingFeatures = "../../../../data/fashion_mnist_test_vectors.csv",
-                                                 .testingLabels = "../../../../data/fashion_mnist_test_labels.csv"},
-      reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
-      {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
-#endif
 
   if (datasetResult.has_error()) {
     std::cout << datasetResult.error() << std::endl;
@@ -113,21 +106,15 @@ int main(int argc, char* argv[]) {  //
 
   auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
 
-#ifndef IS_PRODUCTION_BUILD
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
   auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(result, *dataset.testingLabels);
   evaluation.Print();
-#endif
 
   timer.Start();
   std::cout << "\nWriting results into CSV file..." << std::endl;
   nnn::CSVLabelsWriter writer;
 
-#ifdef IS_PRODUCTION_BUILD
-  auto writeResult = writer.Write("./test_predictions.csv", result);
-#else
-  auto writeResult = writer.Write("../../../../test_predictions.csv", result);
-#endif
+  auto writeResult = writer.Write(PREFIX + "test_predictions.csv", result);
 
   if (writeResult.has_error()) {
     std::cout << writeResult.error() << std::endl;

@@ -92,8 +92,8 @@ namespace nnn {
         auto validationEval = TestDataSoftmaxEvaluator::Evaluate(actual, allValidationLabels);
         float percentValidation = static_cast<float>(validationEval.correctlyClassifiedCount) / validationEval.totalExamplesCount;
         std::cout << std::fixed << std::setprecision(4);
-        std::cout << "Epoch " << epoch + 1 << "/" << m_params.epochs << " - training loss: " << trainLoss;
-        std::cout << ", validation loss: " << validationLoss;
+        std::cout << "Epoch " << epoch + 1 << "/" << m_params.epochs << "\t- loss training: " << trainLoss;
+        std::cout << ", validation: " << validationLoss;
         std::cout << std::setprecision(2) << " (aprox. " << percentValidation * 100 << "%)";
         std::cout << "." << std::endl;
       }
