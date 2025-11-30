@@ -1,11 +1,9 @@
 #pragma once
 
 #include <functional>
-#include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <iomanip>
 
 #include "FloatMatrix.hpp"
 #include "ILayer.hpp"
@@ -14,6 +12,9 @@
 
 namespace nnn {
   /**
+   * @brief This class manages the structure and training of a neural network. It handles the forward pass,
+   * backpropagation, and weight update steps.
+   *
    * @warning This API is not safe yet, for example, user is not anyhow forced to set output layer leading to null
    * pointer exception.
    */
@@ -27,6 +28,13 @@ namespace nnn {
       size_t epochs = 30;
     };
 
+    struct Statistics {
+      std::vector<float> trainingLosses;
+      std::vector<float> validationLosses;
+
+      void Print(int stride = 0) const;
+    };
+
     NeuralNetwork() = default;
     NeuralNetwork(HyperParameters params) : m_params(params) {}
 
@@ -34,36 +42,15 @@ namespace nnn {
     size_t SetOutputLayer(std::unique_ptr<IOutputLayer>&& layer);
     ILayer* GetLayer(size_t index);
 
+    Statistics Train(TrainingDataset& trainingDataset, bool reportProgress = false);
     FloatMatrix RunForwardPass(FloatMatrix input);
     void RunBackwardPass(FloatMatrix gradient);
     void UpdateWeights();
 
-    struct Statistics {
-      std::vector<float> trainingLosses;
-      std::vector<float> validationLosses;
-
-      void Print(int stride = 0) const {  //
-
-        const int precision = 5;
-        std::cout << std::fixed << std::setprecision(precision);
-
-        for (size_t i = 0; i < trainingLosses.size(); i++) {
-          if (stride == 0 || i % stride == 0) {
-            std::cout << "Epoch <" << i << "> - training loss: <" << trainingLosses[i] << ">, validation loss: <"
-                      << validationLosses[i] << ">.\n";
-          }
-        }
-
-        std::cout << std::defaultfloat;
-      }
-    };
-
-    Statistics Train(TrainingDataset& trainingDataset, bool reportProgress = false);
-
    protected:
-    std::unique_ptr<IOutputLayer> m_outputLayer;
-    std::vector<std::unique_ptr<ILayer>> m_hiddenLayers;
     HyperParameters m_params = HyperParameters();
+    std::vector<std::unique_ptr<ILayer>> m_hiddenLayers;
+    std::unique_ptr<IOutputLayer> m_outputLayer;
 
     virtual void ForEachLayerForwardImpl(const std::function<void(ILayer&)>& func) {
       for (auto& layer : m_hiddenLayers) {

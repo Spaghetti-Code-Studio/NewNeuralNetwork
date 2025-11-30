@@ -35,7 +35,7 @@ namespace nnn {
       float maxValueInColumn = FindMaxInColumn(input, col);
       float expSum = SumExponentialsInColumn(input, col, maxValueInColumn);
 
-      // TODO: leave it here, change it? I am not sure if this case can occur or no...
+      // TODO: should we leave it here?
       if (expSum == 0.0f) {
         throw std::runtime_error("Numerical error in Softmax (division by zero)!");
       }
@@ -49,7 +49,6 @@ namespace nnn {
 
   void Softmax::Derivative(FloatMatrix& input) const {  //
 
-    // TODO: implement this
     throw std::runtime_error("Not implemented yet!");
   }
 }  // namespace nnn

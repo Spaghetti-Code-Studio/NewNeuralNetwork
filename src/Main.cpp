@@ -50,12 +50,13 @@ int main(int argc, char* argv[]) {  //
   std::cout << Logo << "\n\nVersion 1.0.0\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
-
   std::cout << config.ToString() << std::endl;
 
 #ifdef _OPENMP
   omp_set_num_threads(config.hardThreadsLimit);
   std::cout << "Parallel computing is enabled.\n" << std::endl;
+#else
+  std::cout << "Parallel computing is not enabled (missing OpenMP dependency).\n" << std::endl;
 #endif
 
   int seed = config.randomSeed;
@@ -81,11 +82,9 @@ int main(int argc, char* argv[]) {  //
       config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
 
   nnn::Timer timer;
-
   timer.Start();
   std::cout << "Loading dataset..." << std::endl;
   auto reader = std::make_shared<nnn::CSVReader>();
-
 
   auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = PREFIX + "data/fashion_mnist_train_vectors.csv",
                                                  .trainingLabels = PREFIX + "data/fashion_mnist_train_labels.csv",
@@ -114,15 +113,14 @@ int main(int argc, char* argv[]) {  //
 
   auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(testEval, *dataset.testingLabels);
   evaluation.Print();
-  
+
   std::cout << "Evaluation took " << timer.End() << " seconds." << std::endl;
 
   timer.Start();
-  std::cout << "\nWriting results into CSV file..." << std::endl;
+  std::cout << "\nWriting results into CSV files..." << std::endl;
   nnn::CSVLabelsWriter writer;
 
   auto writeResultTest = writer.Write(PREFIX + "test_predictions.csv", testEval);
-
   auto writeResultTrain = writer.Write(PREFIX + "train_predictions.csv", trainEval);
 
   if (writeResultTest.has_error()) {
@@ -133,7 +131,6 @@ int main(int argc, char* argv[]) {  //
     std::cout << writeResultTrain.error() << std::endl;
     return -1;
   }
-
   std::cout << "Writing results took " << timer.End() << " seconds." << std::endl;
 
   return 0;

@@ -32,6 +32,7 @@ namespace nnn {
     FloatMatrix Forward(const FloatMatrix& inputVector) override;
 
     /**
+     * @brief ...
      * @param gradient how much does the loss change when my outputs change (dE/dy)
      * @returns how much the loss changes when next layer outputs change (with respect to backward pass)
      */
@@ -42,9 +43,8 @@ namespace nnn {
     const FloatMatrix& GetBiases() const override;
     inline const FloatMatrix& GetWeightsGradient() const override { return m_gradientWeights; }
     inline const FloatMatrix& GetBiasesGradient() const override { return m_gradientBias; }
-    inline FloatMatrix& GetWeightsVelocity() override { return m_weightVelocity;}
-    inline FloatMatrix& GetBiasesVelocity() override { return m_biasesVelocity;}
-
+    inline FloatMatrix& GetWeightsVelocity() override { return m_weightVelocity; }
+    inline FloatMatrix& GetBiasesVelocity() override { return m_biasesVelocity; }
 
    protected:
     size_t m_inputSize;
