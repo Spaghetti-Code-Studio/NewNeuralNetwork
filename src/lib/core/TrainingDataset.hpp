@@ -5,6 +5,10 @@
 #include "FloatMatrix.hpp"
 
 namespace nnn {
+  /**
+   * @brief Groups data necessary for neural network training: feature and labels vectors. Divides dataset to both
+   * training and validation subsets. Supports each batching of training vectors.
+   */
   class TrainingDataset {
    public:
     struct TrainingDatasetParameters {
@@ -18,25 +22,24 @@ namespace nnn {
     };
 
     TrainingDataset(
-        std::shared_ptr<FloatMatrix> data, std::shared_ptr<FloatMatrix> datalabels, TrainingDatasetParameters params);
+        std::shared_ptr<FloatMatrix> features, std::shared_ptr<FloatMatrix> labels, TrainingDatasetParameters params);
 
-    TrainingBatch GetNextBatch();
-    bool HasNextBatch() const;
-    bool HasValidationDataset() const { return m_params.validationSetFraction != 0.0f; }
-
-    void Reset();
-    FloatMatrix GetValidationFeatures() const;
-    FloatMatrix GetValidationLabels() const;
+    std::shared_ptr<const FloatMatrix> GetFeatures() const;
+    std::shared_ptr<const FloatMatrix> GetLabels() const;
 
     FloatMatrix GetTrainingFeatures() const;
     FloatMatrix GetTrainingLabels() const;
 
-    // TODO: the copy here is only because forward pass doesn't take const
-    FloatMatrix GetFeatures() const { return *m_data; }
-    FloatMatrix GetLabels() const { return *m_labels; }
+    FloatMatrix GetValidationFeatures() const;
+    FloatMatrix GetValidationLabels() const;
+    bool HasValidationDataset() const;
+
+    TrainingBatch GetNextBatch();
+    bool HasNextBatch() const;
+    void Reset();
 
    private:
-    std::shared_ptr<const FloatMatrix> m_data;
+    std::shared_ptr<const FloatMatrix> m_features;
     std::shared_ptr<const FloatMatrix> m_labels;
     TrainingDatasetParameters m_params;
     size_t m_validationDatasetSize = 0;

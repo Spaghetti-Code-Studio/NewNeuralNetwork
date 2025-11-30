@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {  //
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
 
   auto testEval = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
-  auto trainEval = neuralNetwork.RunForwardPass(dataset.trainingDataset.GetFeatures());
+  auto trainEval = neuralNetwork.RunForwardPass(*dataset.trainingDataset.GetFeatures());
 
   auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(testEval, *dataset.testingLabels);
   evaluation.Print();
