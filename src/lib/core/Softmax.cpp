@@ -35,7 +35,6 @@ namespace nnn {
       float maxValueInColumn = FindMaxInColumn(input, col);
       float expSum = SumExponentialsInColumn(input, col, maxValueInColumn);
 
-      // TODO: should we leave it here?
       if (expSum == 0.0f) {
         throw std::runtime_error("Numerical error in Softmax (division by zero)!");
       }
