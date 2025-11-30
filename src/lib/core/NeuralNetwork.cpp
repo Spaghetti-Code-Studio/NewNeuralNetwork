@@ -5,6 +5,21 @@
 
 #include "TestDataSoftmaxEvaluator.hpp"
 
+static float ComputeCrossEntropyLoss(const nnn::FloatMatrix& predictions, const nnn::FloatMatrix& labels) {
+  nnn::FloatMatrix logPredictions = predictions.Map([](float x) { 
+      return std::log(std::max(1e-10f, std::min(1.0f - 1e-10f, x))); 
+  });
+
+  auto loss = labels.Hadamard(logPredictions);
+  loss.Transpose();
+  
+  auto flat = nnn::FloatMatrix::SumColumns(loss);
+  flat.Transpose();
+  auto total = nnn::FloatMatrix::SumColumns(flat);
+  
+  return -total(0, 0) / loss.GetRowCount();
+}
+
 namespace nnn {
 
   size_t NeuralNetwork::AddHiddenLayer(std::unique_ptr<ILayer>&& layer) {
@@ -38,11 +53,6 @@ namespace nnn {
                                - weightVelocity * m_params.learningRate;
       FloatMatrix newBiases = layer.GetBiases() - biasVelocity * m_params.learningRate;
 
-      for (size_t i = 0; i < newWeights.GetRowCount(); i++) {
-        for (size_t j = 0; j < newWeights.GetColCount(); j++) {
-          assert(std::abs(newWeights(i, j)) < 99999 && "The weight seems to be exploding!");  // TODO: remove this later
-        }
-      }
       layer.Update(newWeights, newBiases);
     });
   }
@@ -70,40 +80,24 @@ namespace nnn {
       }
       trainingDataset.Reset();
 
-      // compute loss for training dataset
       FloatMatrix trainPredictions = RunForwardPass(allTrainFeatures);
-      trainPredictions.MapInPlace([](float x) { return std::log(std::max(1e-10f, std::min(1.0f - 1e-10f, x))); });
-      auto trainLoss = allTrainLabels.Hadamard(trainPredictions);
-      trainLoss.Transpose();
-      auto trainFlat = FloatMatrix::SumColumns(trainLoss);
-      trainFlat.Transpose();
-      auto trainTotal = FloatMatrix::SumColumns(trainFlat);
-      lossesTraining.push_back(-trainTotal(0, 0) / trainLoss.GetRowCount());
+      float trainLoss = ComputeCrossEntropyLoss(trainPredictions, allTrainLabels);
+      
+      lossesTraining.push_back(trainLoss);
 
-      // compute loss for validation dataset
-      // TODO: separate this into a function when doing final code cleanups
-      if (trainingDataset.HasValidationDataset()) {
-        auto actual = RunForwardPass(allValidationFeatures);
-        actual.MapInPlace([](float x) { return std::log(std::max(1e-10f, std::min(1.0f - 1e-10f, x))); });
-        auto loss = allValidationLabels.Hadamard(actual);
-        loss.Transpose();
-        auto flat = FloatMatrix::SumColumns(loss);
-        flat.Transpose();
-        auto total = FloatMatrix::SumColumns(flat);
-        lossesValidation.push_back(-total(0, 0) / loss.GetRowCount());
+      if (trainingDataset.HasValidationDataset() && reportProgress) {
+        FloatMatrix actual = RunForwardPass(allValidationFeatures);
+        float validationLoss = ComputeCrossEntropyLoss(actual, allValidationLabels);
 
-        if (reportProgress) {
-          auto result = nnn::TestDataSoftmaxEvaluator::Evaluate(actual, allValidationLabels);
-
-          std::cout << std::fixed << std::setprecision(4);
-          std::cout << "Epoch " << epoch + 1 << "/" << m_params.epochs << " - training loss: " << lossesTraining.back();
-          if (trainingDataset.HasValidationDataset()) {
-            std::cout << ", validation loss: " << lossesValidation.back();
-            std::cout << std::setprecision(2) << " (aprox. " << (static_cast<float>(result.correctlyClassifiedCount) / result.totalExamplesCount) * 100 << "%)";
-          }
-          std::cout << "." << std::endl;
-        }
+        auto validationEval = TestDataSoftmaxEvaluator::Evaluate(actual, allValidationLabels);
+        float percentValidation = static_cast<float>(validationEval.correctlyClassifiedCount) / validationEval.totalExamplesCount;
+        std::cout << std::fixed << std::setprecision(4);
+        std::cout << "Epoch " << epoch + 1 << "/" << m_params.epochs << " - training loss: " << trainLoss;
+        std::cout << ", validation loss: " << validationLoss;
+        std::cout << std::setprecision(2) << " (aprox. " << percentValidation * 100 << "%)";
+        std::cout << "." << std::endl;
       }
+
       m_params.learningRate *= m_params.learningRateDecay;
     }
 
