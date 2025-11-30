@@ -104,22 +104,34 @@ int main(int argc, char* argv[]) {  //
   neuralNetwork.Train(dataset.trainingDataset, true);
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
 
-  auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
-
+  timer.Start();
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
-  auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(result, *dataset.testingLabels);
+
+  auto testEval = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
+  auto trainEval = neuralNetwork.RunForwardPass(dataset.trainingDataset.GetFeatures());
+
+  auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(testEval, *dataset.testingLabels);
   evaluation.Print();
+  
+  std::cout << "Evaluation took " << timer.End() << " seconds." << std::endl;
 
   timer.Start();
   std::cout << "\nWriting results into CSV file..." << std::endl;
   nnn::CSVLabelsWriter writer;
 
-  auto writeResult = writer.Write(PREFIX + "test_predictions.csv", result);
+  auto writeResultTest = writer.Write(PREFIX + "test_predictions.csv", testEval);
 
-  if (writeResult.has_error()) {
-    std::cout << writeResult.error() << std::endl;
+  auto writeResultTrain = writer.Write(PREFIX + "train_predictions.csv", trainEval);
+
+  if (writeResultTest.has_error()) {
+    std::cout << writeResultTest.error() << std::endl;
     return -1;
   }
+  if (writeResultTrain.has_error()) {
+    std::cout << writeResultTrain.error() << std::endl;
+    return -1;
+  }
+
   std::cout << "Writing results took " << timer.End() << " seconds." << std::endl;
 
   return 0;

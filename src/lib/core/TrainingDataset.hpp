@@ -31,6 +31,10 @@ namespace nnn {
     FloatMatrix GetTrainingFeatures() const;
     FloatMatrix GetTrainingLabels() const;
 
+    // TODO: the copy here is only because forward pass doesn't take const
+    FloatMatrix GetFeatures() const { return *m_data; }
+    FloatMatrix GetLabels() const { return *m_labels; }
+
    private:
     std::shared_ptr<const FloatMatrix> m_data;
     std::shared_ptr<const FloatMatrix> m_labels;
