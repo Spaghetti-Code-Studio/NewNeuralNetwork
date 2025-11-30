@@ -23,6 +23,7 @@ namespace nnn {
       const size_t classes = data.GetRowCount();
       const size_t vectors = data.GetColCount();
 
+      // TODO: code duplication with the logic in TestDataSoftmaxEvaluator::Evaluate() method.
       for (int col = 0; col < vectors; ++col) {  //
 
         float max = -std::numeric_limits<float>::infinity();

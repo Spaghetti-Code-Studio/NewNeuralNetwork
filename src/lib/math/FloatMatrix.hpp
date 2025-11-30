@@ -33,12 +33,12 @@ namespace nnn {
     inline size_t GetColCount() const { return m_cols; }
     inline bool IsTransposed() const { return m_transposed; }
 
+    void Transpose();
     inline float& operator()(size_t row, size_t col) { return m_data[ComputeIndex(row, col)]; }
     inline const float& operator()(size_t row, size_t col) const { return m_data[ComputeIndex(row, col)]; }
 
-    std::optional<std::reference_wrapper<float>> At(size_t row, size_t col);
+    std::optional<float> At(size_t row, size_t col) const;
     bool Set(size_t row, size_t col, float value);
-    void Transpose();
 
     float* Data();
     const float* Data() const;
@@ -48,6 +48,18 @@ namespace nnn {
     FloatMatrix& operator+=(const FloatMatrix& other);
     FloatMatrix operator-(const FloatMatrix& other) const;
     FloatMatrix& operator-=(const FloatMatrix& other);
+
+    /**
+     * @brief Performs standart matrix-matrix multiplication.
+     *
+     * The calculation is parallelized using OpenMP if the _OPENMP macro is defined,
+     * otherwise, it defaults to a serial implementation (see `MultiplySerial` method).
+     *
+     * @param other the right-hand side FloatMatrix in the multiplication (B in A * B)
+     * @return new FloatMatrix containing the result of the matrix product
+     * @throws FloatMatrixInvalidDimensionException if the number of columns in the
+     * current matrix does not match the number of rows in the 'other' matrix
+     */
     FloatMatrix operator*(const FloatMatrix& other) const;
     FloatMatrix MultiplySerial(const FloatMatrix& other) const;
     FloatMatrix operator*(float scalar) const;
@@ -56,9 +68,7 @@ namespace nnn {
 
     FloatMatrix Map(const std::function<float(float)>& func) const;
     void MapInPlace(const std::function<float(float)>& func);
-
     void AddToAllCols(const FloatMatrix& vector);
-
     FloatMatrix Hadamard(const FloatMatrix& other) const;
 
     template <typename T>
