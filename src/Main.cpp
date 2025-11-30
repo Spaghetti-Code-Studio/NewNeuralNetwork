@@ -62,9 +62,11 @@ int main(int argc, char* argv[]) {  //
   auto glorotInit = nnn::NormalGlorotWeightInitializer(seed);
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
-  auto neuralNetwork =
-      nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(config.learningRate, config.learningRateDecay,
-          config.weightDecay, config.momentum, config.epochs));  // TODO: use modern C++ initializator
+  auto neuralNetwork = nnn::NeuralNetwork({.learningRate = config.learningRate,
+      .learningRateDecay = config.learningRateDecay,
+      .weightDecay = config.weightDecay,
+      .momentum = config.momentum,
+      .epochs = config.epochs});
 
   if (config.layers.size() < 2) {
     std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;

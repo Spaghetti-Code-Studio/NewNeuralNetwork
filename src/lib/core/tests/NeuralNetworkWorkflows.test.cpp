@@ -256,7 +256,7 @@ TEST_CASE("2 Layer NN - Backward pass test") {  //
 
 TEST_CASE("2 Layer NN - Basic forward and backward pass with ReLU and SoftMax") {  //
 
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.008f));
+  auto neuralNetwork = nnn::NeuralNetwork({.learningRate = 0.008f});
   size_t l1 = neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(3, 3, std::make_unique<nnn::ReLU>()));
   size_t l2 = neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(3, 3));
 
@@ -297,7 +297,7 @@ TEST_CASE("2 Layer NN - Basic forward and backward pass with ReLU and SoftMax") 
 TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") {  //
 
   // intentionally testing overfitting
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.8f, 200));  // learning rate, epochs
+  auto neuralNetwork = nnn::NeuralNetwork({.learningRate = 0.8f, .epochs = 200});
 
   auto init = nnn::NormalGlorotWeightInitializer(42);
 
@@ -337,7 +337,7 @@ TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax") 
 TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax - From CSV") {  //
 
   // intentionally testing overfitting
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.8f, 200));  // learning rate, epochs
+  auto neuralNetwork = nnn::NeuralNetwork({.learningRate = 0.8f, .epochs = 200});
 
   auto init = nnn::NormalGlorotWeightInitializer(42);
 
@@ -381,7 +381,7 @@ TEST_CASE("3 Layer NN - Solve XOR as a decision problem with ReLU and Softmax - 
 
 TEST_CASE("3 Layer NN - Recognize when a point is in a circle + Validation") {  //
 
-  auto neuralNetwork = nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(0.3f, 80));  // learning rate, epochs
+  auto neuralNetwork = nnn::NeuralNetwork({.learningRate = 0.3f, .epochs = 80});
 
   auto initR = nnn::NormalGlorotWeightInitializer(42);
   auto initS = nnn::NormalHeWeightInitializer(42);
