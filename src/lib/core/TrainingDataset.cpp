@@ -8,14 +8,15 @@ namespace nnn {
 
     int datasetSize = m_data->GetColCount();
     int batchSize = m_params.batchSize;
-
-    m_trainingBatchCount = datasetSize / batchSize;
-    int residueSize = datasetSize - (m_trainingBatchCount * batchSize);
-    int sizeWithoutResidue = datasetSize - residueSize;
+    
     int validationBatchCount = (m_params.validationSetFraction * datasetSize) / batchSize;
+    int totalBatchCount = datasetSize / batchSize;
+    int residueSize = datasetSize - (totalBatchCount * batchSize);
 
+    // the residue should be added to the validation set to make batching easier
     m_validationDatasetSize = validationBatchCount * batchSize + residueSize;
     m_trainingDatasetSize = datasetSize - m_validationDatasetSize;
+    m_trainingBatchCount = m_trainingDatasetSize / batchSize;
   }
 
   TrainingDataset::TrainingBatch TrainingDataset::GetNextBatch() {
@@ -31,7 +32,7 @@ namespace nnn {
     return validationFeatures;
   }
   FloatMatrix TrainingDataset::GetValidationLabels() const {
-    FloatMatrix validationLabels = m_labels->GetColumns(m_trainingDatasetSize, m_data->GetColCount() - 1);
+    FloatMatrix validationLabels = m_labels->GetColumns(m_trainingDatasetSize, m_labels->GetColCount() - 1);
     return validationLabels;
   }
 
