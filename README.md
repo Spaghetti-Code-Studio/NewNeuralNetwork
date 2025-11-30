@@ -2,7 +2,8 @@
 
 # NewNeuralNetwork 1.0.0
 
-A straight-forward MLP training framework implemented in C++. \
+A straight-forward MLP training framework implemented in C++. 
+
 https://github.com/Spaghetti-Code-Studio/NewNeuralNetwork
 
 ## Running the project
