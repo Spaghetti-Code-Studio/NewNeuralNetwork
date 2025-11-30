@@ -1,4 +1,4 @@
-536376 Marek Eibel, 536601 Jakub Čížek
+Jakub Čížek <536601> & Marek Eibel <536376>
 
 # NewNeuralNetwork 1.0.0
 
