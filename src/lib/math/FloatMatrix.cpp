@@ -99,6 +99,24 @@ namespace nnn {
     return result;
   }
 
+  FloatMatrix FloatMatrix::GetColumns(const std::vector<size_t>& indices) const {  //
+
+    if (indices.size() == 0) {
+      return FloatMatrix(0, 0);
+    }
+
+    auto result = FloatMatrix(GetRowCount(), indices.size());
+
+    for (size_t r = 0; r < GetRowCount(); ++r) {
+      for (size_t i = 0; i < indices.size(); ++i) {
+        size_t c = indices[i];
+        result(r, i) = (*this)(r, c);
+      }
+    }
+
+    return result;
+  }
+
   FloatMatrix FloatMatrix::operator+(const FloatMatrix& other) const {
     if (m_rows != other.m_rows) {
       throw FloatMatrixInvalidDimensionException("Cannot add matrices when row count does not match.");
