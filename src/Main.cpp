@@ -35,34 +35,40 @@ int main(int argc, char* argv[]) {  //
   nnn::Config config;
 
 #ifdef IS_PRODUCTION_BUILD
-  auto configResult = config.LoadFromJSON("./config.json");
+  const std::string PREFIX = "./";
 #else
-  auto configResult = config.LoadFromJSON("../../../../config.json");
+  const std::string PREFIX = "../../../../";
 #endif
+
+  auto configResult = config.LoadFromJSON(PREFIX + "config.json");
 
   if (configResult.has_error()) {
     std::cout << configResult.error() << std::endl;
     return -1;
   }
 
-  std::cout << Logo << "\n\nVersion 1.0.0\n"
+  std::cout << Logo << "\n\nVersion 1.2.0\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
-
   std::cout << config.ToString() << std::endl;
 
 #ifdef _OPENMP
   omp_set_num_threads(config.hardThreadsLimit);
-  std::cout << "Parallel computing on.\n" << std::endl;
+  std::cout << "Parallel computing is enabled.\n" << std::endl;
+#else
+  std::cout << "Parallel computing is not enabled (missing OpenMP dependency).\n" << std::endl;
 #endif
 
   int seed = config.randomSeed;
   auto glorotInit = nnn::NormalGlorotWeightInitializer(seed);
   auto heInit = nnn::NormalHeWeightInitializer(seed);
 
-  auto neuralNetwork =
-      nnn::NeuralNetwork(nnn::NeuralNetwork::HyperParameters(config.learningRate, config.learningRateDecay,
-          config.weightDecay, config.momentum, config.epochs));  // TODO: use modern C++ initializator
+  auto neuralNetwork = nnn::NeuralNetwork({.learningRate = config.learningRate,
+      .learningRateDecay = config.learningRateDecay,
+      .weightDecay = config.weightDecay,
+      .momentum = config.momentum,
+      .epochs = config.epochs,
+      .seed = config.randomSeed});
 
   if (config.layers.size() < 2) {
     std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;
@@ -73,31 +79,20 @@ int main(int argc, char* argv[]) {  //
     neuralNetwork.AddHiddenLayer(std::make_unique<nnn::DenseLayer>(
         config.layers[i], config.layers[i + 1], std::make_unique<nnn::LeakyReLU>(), heInit));
   }
-
   neuralNetwork.SetOutputLayer(std::make_unique<nnn::SoftmaxDenseOutputLayer>(
       config.layers[config.layers.size() - 2], config.layers[config.layers.size() - 1], glorotInit));
 
   nnn::Timer timer;
-
   timer.Start();
   std::cout << "Loading dataset..." << std::endl;
   auto reader = std::make_shared<nnn::CSVReader>();
 
-#ifdef IS_PRODUCTION_BUILD
-  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "./data/fashion_mnist_train_vectors.csv",
-                                                 .trainingLabels = "./data/fashion_mnist_train_labels.csv",
-                                                 .testingFeatures = "./data/fashion_mnist_test_vectors.csv",
-                                                 .testingLabels = "./data/fashion_mnist_test_labels.csv"},
+  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = PREFIX + "data/fashion_mnist_train_vectors.csv",
+                                                 .trainingLabels = PREFIX + "data/fashion_mnist_train_labels.csv",
+                                                 .testingFeatures = PREFIX + "data/fashion_mnist_test_vectors.csv",
+                                                 .testingLabels = PREFIX + "data/fashion_mnist_test_labels.csv"},
       reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
       {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
-#else
-  auto datasetResult = nnn::DataLoader::Load({.trainingFeatures = "../../../../data/fashion_mnist_train_vectors.csv",
-                                                 .trainingLabels = "../../../../data/fashion_mnist_train_labels.csv",
-                                                 .testingFeatures = "../../../../data/fashion_mnist_test_vectors.csv",
-                                                 .testingLabels = "../../../../data/fashion_mnist_test_labels.csv"},
-      reader, {.batchSize = config.batchSize, .validationSetFraction = config.validationSetFraction},
-      {.expectedClassNumber = config.expectedClassNumber, .shouldOneHotEncode = true, .normalizationFactor = 256});
-#endif
 
   if (datasetResult.has_error()) {
     std::cout << datasetResult.error() << std::endl;
@@ -111,26 +106,30 @@ int main(int argc, char* argv[]) {  //
   neuralNetwork.Train(dataset.trainingDataset, true);
   std::cout << "Training took " << timer.End() << " seconds." << std::endl;
 
-  auto result = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
-
-#ifndef IS_PRODUCTION_BUILD
+  timer.Start();
   std::cout << "\nEvaluation of neural network on testing data..." << std::endl;
-  auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(result, *dataset.testingLabels);
+
+  auto testEval = neuralNetwork.RunForwardPass(*dataset.testingFeatures);
+  auto trainEval = neuralNetwork.RunForwardPass(*dataset.trainingDataset.GetFeatures());
+
+  auto evaluation = nnn::TestDataSoftmaxEvaluator::Evaluate(testEval, *dataset.testingLabels);
   evaluation.Print();
-#endif
+
+  std::cout << "Evaluation took " << timer.End() << " seconds." << std::endl;
 
   timer.Start();
-  std::cout << "\nWriting results into CSV file..." << std::endl;
+  std::cout << "\nWriting results into CSV files..." << std::endl;
   nnn::CSVLabelsWriter writer;
 
-#ifdef IS_PRODUCTION_BUILD
-  auto writeResult = writer.Write("./test_predictions.csv", result);
-#else
-  auto writeResult = writer.Write("../../../../test_predictions.csv", result);
-#endif
+  auto writeResultTest = writer.Write(PREFIX + "test_predictions.csv", testEval);
+  auto writeResultTrain = writer.Write(PREFIX + "train_predictions.csv", trainEval);
 
-  if (writeResult.has_error()) {
-    std::cout << writeResult.error() << std::endl;
+  if (writeResultTest.has_error()) {
+    std::cout << writeResultTest.error() << std::endl;
+    return -1;
+  }
+  if (writeResultTrain.has_error()) {
+    std::cout << writeResultTrain.error() << std::endl;
     return -1;
   }
   std::cout << "Writing results took " << timer.End() << " seconds." << std::endl;

@@ -33,7 +33,8 @@ cpp::result<nnn::DataLoader::Dataset, std::string> nnn::DataLoader::Load(const F
 
   // TODO: this could probably be done more efficiently by not loading the whole labels file, just reading it and
   // creating one-hot encoded data right away
-  if (loadingParams.shouldOneHotEncode) {
+  if (loadingParams.shouldOneHotEncode) {  //
+
     auto rowsTrain = trainingLabelsReadResult.value()->GetRowCount();
     auto rowsTest = testingLabelsReadResult.value()->GetRowCount();
 

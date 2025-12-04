@@ -4,6 +4,9 @@
 
 namespace nnn {
 
+  /**
+   * @brief The common interface for loss/cost functions.
+   */
   class ILossFunction {
    public:
     virtual ~ILossFunction() = 0;

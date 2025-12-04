@@ -5,17 +5,21 @@
 
 namespace nnn {
 
+  /**
+   * @brief The abstraction last layer of the network, reports the gradient for training.
+   * This is done either pseudo-randomly or deterministically based on some seed. 
+   */
   class IOutputLayer : public virtual ILayer {
    public:
     virtual ~IOutputLayer() = 0;
 
     /**
-     * @brief Computes output gradient by using loss function.
+     * @brief Computes output gradient by using some cost function.
      *
-     * @param actual (...)
-     * @param expected (...)
+     * @param actual the output of the network on the input.
+     * @param expected the correct labels for the same input.
      *
-     * @returns (...)
+     * @returns Gradient vector (averaged if given a batch).
      */
     virtual FloatMatrix ComputeOutputGradient(const FloatMatrix& actual, const FloatMatrix& expected) = 0;
   };

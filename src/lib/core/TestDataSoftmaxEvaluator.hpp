@@ -1,21 +1,15 @@
 #pragma once
 
-#include <iostream>
-
 #include "FloatMatrix.hpp"
 
 namespace nnn::TestDataSoftmaxEvaluator {
 
-  struct Result {
+  struct EvaluationResult {
     size_t totalExamplesCount;
     size_t correctlyClassifiedCount;
 
-    void Print() const {
-      std::cout << "Percentage of correctly classified examples: "
-                << (static_cast<float>(correctlyClassifiedCount) / static_cast<float>(totalExamplesCount) * 100.0f)
-                << "%." << std::endl;
-    }
+    void Print() const;
   };
 
-  Result Evaluate(const FloatMatrix& result, const FloatMatrix& testingLabels);
+  EvaluationResult Evaluate(const FloatMatrix& result, const FloatMatrix& testingLabels);
 }  // namespace nnn::TestDataSoftmaxEvaluator
