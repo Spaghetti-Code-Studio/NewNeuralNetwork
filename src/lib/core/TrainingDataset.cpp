@@ -1,5 +1,8 @@
 #include "TrainingDataset.hpp"
 
+#include <algorithm>
+#include <numeric>
+
 namespace nnn {
 
   TrainingDataset::TrainingDataset(
@@ -18,15 +21,6 @@ namespace nnn {
     m_trainingDatasetSize = datasetSize - m_validationDatasetSize;
     m_trainingBatchCount = m_trainingDatasetSize / batchSize;
   }
-
-  TrainingDataset::TrainingBatch TrainingDataset::GetNextBatch() {  //
-
-    int currentIndex = m_trainingBatchIndex++ % m_trainingBatchCount;
-    return {m_features->GetColumns(currentIndex * m_params.batchSize, (currentIndex + 1) * m_params.batchSize - 1),
-        m_labels->GetColumns(currentIndex * m_params.batchSize, (currentIndex + 1) * m_params.batchSize - 1)};
-  }
-
-  bool TrainingDataset::HasNextBatch() const { return m_trainingBatchIndex < m_trainingBatchCount; }
 
   FloatMatrix TrainingDataset::GetValidationFeatures() const {
     return m_features->GetColumns(m_trainingDatasetSize, m_features->GetColCount() - 1);
@@ -47,5 +41,42 @@ namespace nnn {
 
   std::shared_ptr<const FloatMatrix> TrainingDataset::GetLabels() const { return m_labels; }
 
-  void TrainingDataset::Reset() { m_trainingBatchIndex = 0; }
+  // -----------------------------------------------------------------------------------------------------------
+
+  TrainingBatchGenerator::TrainingBatchGenerator(TrainingDataset& dataset, TrainingBatchGeneratorParameters params)
+      : m_dataset(dataset), m_params(params), m_indices({}), m_generator(params.seed) {  //
+
+    if (m_params.isDataShufflingEnabled) {
+      m_indices.resize(m_dataset.m_trainingDatasetSize);
+      std::iota(m_indices.begin(), m_indices.end(), 0);
+      std::shuffle(m_indices.begin(), m_indices.end(), m_generator);
+    }
+  }
+
+  TrainingDataset::TrainingBatch TrainingBatchGenerator::GetNextBatch() {  //
+
+    int currentIndex = m_dataset.m_trainingBatchIndex++ % m_dataset.m_trainingBatchCount;
+    if (!m_params.isDataShufflingEnabled) {
+      return {m_dataset.m_features->GetColumns(
+                  currentIndex * m_dataset.m_params.batchSize, (currentIndex + 1) * m_dataset.m_params.batchSize - 1),
+          m_dataset.m_labels->GetColumns(
+              currentIndex * m_dataset.m_params.batchSize, (currentIndex + 1) * m_dataset.m_params.batchSize - 1)};
+    } else {
+      std::vector<size_t> subvector(m_indices.begin() + currentIndex * m_dataset.m_params.batchSize,
+          m_indices.begin() + (currentIndex + 1) * m_dataset.m_params.batchSize);
+      return {m_dataset.m_features->GetColumns(subvector), m_dataset.m_labels->GetColumns(subvector)};
+    }
+  }
+
+  bool TrainingBatchGenerator::HasNextBatch() const {
+    return m_dataset.m_trainingBatchIndex < m_dataset.m_trainingBatchCount;
+  }
+
+  void TrainingBatchGenerator::Reset() {
+    m_dataset.m_trainingBatchIndex = 0;
+    if (m_params.isDataShufflingEnabled) {
+      std::shuffle(m_indices.begin(), m_indices.end(), m_generator);
+    }
+  }
+  const std::vector<size_t>& TrainingBatchGenerator::GetIndices() const { return m_indices; }
 }  // namespace nnn
