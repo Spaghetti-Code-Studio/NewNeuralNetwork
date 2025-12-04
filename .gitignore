@@ -51,7 +51,10 @@ out/
 build/
 
 # Training data
-data/
+data/fashion_mnist_train_vectors.csv
+data/fashion_mnist_train_labels.csv
+data/fashion_mnist_test_vectors.csv
+data/fashion_mnist_test_labels.csv
 
 # Predictions by the model
 test_predictions.csv
