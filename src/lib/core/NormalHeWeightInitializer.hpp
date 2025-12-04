@@ -9,7 +9,7 @@ namespace nnn {
 
   /**
    * @brief Suitable for ReLU layers
-   * */ 
+   * */
   class NormalHeWeightInitializer : public IWeightInitializer {
    public:
     NormalHeWeightInitializer();

@@ -7,7 +7,7 @@ namespace nnn {
 
   /**
    * @brief The abstraction last layer of the network, reports the gradient for training.
-   * This is done either pseudo-randomly or deterministically based on some seed. 
+   * This is done either pseudo-randomly or deterministically based on some seed.
    */
   class IOutputLayer : public virtual ILayer {
    public:
