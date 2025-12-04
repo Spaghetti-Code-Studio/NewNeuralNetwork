@@ -67,7 +67,8 @@ int main(int argc, char* argv[]) {  //
       .learningRateDecay = config.learningRateDecay,
       .weightDecay = config.weightDecay,
       .momentum = config.momentum,
-      .epochs = config.epochs});
+      .epochs = config.epochs,
+      .seed = config.randomSeed});
 
   if (config.layers.size() < 2) {
     std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;

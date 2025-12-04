@@ -73,19 +73,21 @@ namespace nnn {
     FloatMatrix allValidationFeatures = trainingDataset.GetValidationFeatures();
     FloatMatrix allValidationLabels = trainingDataset.GetValidationLabels();
 
+    TrainingBatchGenerator batchGenerator(trainingDataset, {.isDataShufflingEnabled = true, .seed = m_params.seed});
+
     for (size_t epoch = 0; epoch < m_params.epochs; ++epoch) {  //
 
-      while (trainingDataset.HasNextBatch()) {  //
+      while (batchGenerator.HasNextBatch()) {  //
 
-        auto input = trainingDataset.GetNextBatch();
-        FloatMatrix actual = RunForwardPass(input.features);
-        FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, input.labels);
-        gradient.MapInPlace([input](float x) { return x / input.features.GetColCount(); });
+        TrainingDataset::TrainingBatch trainingBatch = batchGenerator.GetNextBatch();
+        FloatMatrix actual = RunForwardPass(trainingBatch.features);
+        FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, trainingBatch.labels);
+        gradient.MapInPlace([trainingBatch](float x) { return x / trainingBatch.features.GetColCount(); });
         RunBackwardPass(gradient);
         UpdateWeights();
       }
 
-      trainingDataset.Reset();
+      batchGenerator.Reset();
 
       FloatMatrix trainPredictions = RunForwardPass(allTrainFeatures);
       float trainLoss = ComputeCrossEntropyLoss(trainPredictions, allTrainLabels);
