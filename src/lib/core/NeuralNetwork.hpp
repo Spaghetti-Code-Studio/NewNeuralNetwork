@@ -14,9 +14,6 @@ namespace nnn {
   /**
    * @brief This class manages the structure and training of a neural network. It handles the forward pass,
    * backpropagation, and weight update steps.
-   *
-   * @warning This API is not safe yet, for example, user is not anyhow forced to set output layer leading to null
-   * pointer exception.
    */
   class NeuralNetwork {
    public:
