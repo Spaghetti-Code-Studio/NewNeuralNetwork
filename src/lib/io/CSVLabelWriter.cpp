@@ -5,7 +5,7 @@
 
 namespace nnn {
 
-  cpp::result<void, std::string> CSVLabelsWriter::Write(std::filesystem::path filepath, const FloatMatrix& data) {  //
+  cpp::result<void, IoError> CSVLabelsWriter::Write(std::filesystem::path filepath, const FloatMatrix& data) {  //
 
     std::ofstream outputFile;
     outputFile.open(filepath, std::ios::out);

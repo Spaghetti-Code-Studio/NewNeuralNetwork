@@ -26,6 +26,7 @@ namespace nnn {
       float weightDecay = 1.0f;
       float momentum = 0.0f;
       size_t epochs = 30;
+      int seed = 42;
     };
 
     struct Statistics {

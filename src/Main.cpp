@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {  //
     return -1;
   }
 
-  std::cout << Logo << "\n\nVersion 1.0.0\n"
+  std::cout << Logo << "\n\nVersion 1.2.0\n"
             << "Training neural network on MNIST fashion dataset.\n"
             << std::endl;
   std::cout << config.ToString() << std::endl;
@@ -67,7 +67,8 @@ int main(int argc, char* argv[]) {  //
       .learningRateDecay = config.learningRateDecay,
       .weightDecay = config.weightDecay,
       .momentum = config.momentum,
-      .epochs = config.epochs});
+      .epochs = config.epochs,
+      .seed = config.randomSeed});
 
   if (config.layers.size() < 2) {
     std::cout << "At least two layers are required. Neural network cannot be constructed!" << std::endl;

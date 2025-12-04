@@ -7,7 +7,7 @@ namespace nnn {
   class CSVLabelsWriter : public IWriter {
    public:
     CSVLabelsWriter() = default;
-    cpp::result<void, std::string> Write(std::filesystem::path filepath, const FloatMatrix& data) override;
+    cpp::result<void, IoError> Write(std::filesystem::path filepath, const FloatMatrix& data) override;
   };
 
 }  // namespace nnn
