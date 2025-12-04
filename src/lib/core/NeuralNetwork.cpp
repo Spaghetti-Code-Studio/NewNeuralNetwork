@@ -79,7 +79,7 @@ namespace nnn {
 
       while (batchGenerator.HasNextBatch()) {  //
 
-        TrainingDataset::TrainingBatch trainingBatch = batchGenerator.GetNextBatch();
+        TrainingBatchGenerator::TrainingBatch trainingBatch = batchGenerator.GetNextBatch();
         FloatMatrix actual = RunForwardPass(trainingBatch.features);
         FloatMatrix gradient = m_outputLayer->ComputeOutputGradient(actual, trainingBatch.labels);
         gradient.MapInPlace([trainingBatch](float x) { return x / trainingBatch.features.GetColCount(); });

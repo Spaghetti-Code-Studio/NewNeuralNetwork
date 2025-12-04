@@ -53,7 +53,7 @@ namespace nnn {
     }
   }
 
-  TrainingDataset::TrainingBatch TrainingBatchGenerator::GetNextBatch() {  //
+  TrainingBatchGenerator::TrainingBatch TrainingBatchGenerator::GetNextBatch() {  //
 
     int currentIndex = m_dataset.m_trainingBatchIndex++ % m_dataset.m_trainingBatchCount;
     if (!m_params.isDataShufflingEnabled) {

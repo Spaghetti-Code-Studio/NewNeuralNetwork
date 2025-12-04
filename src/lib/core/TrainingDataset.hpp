@@ -20,11 +20,6 @@ namespace nnn {
       float validationSetFraction = 0.25f;
     };
 
-    struct TrainingBatch {
-      FloatMatrix features;
-      FloatMatrix labels;
-    };
-
     TrainingDataset(
         std::shared_ptr<FloatMatrix> features, std::shared_ptr<FloatMatrix> labels, TrainingDatasetParameters params);
 
@@ -50,7 +45,15 @@ namespace nnn {
     size_t m_trainingBatchIndex = 0;
   };
 
-  // TODO: this could be better done using ITrainingBatchGenerator or something.
+  // TODO: this could be better done using ITrainingBatchGenerator or something, where we would have concrete
+  // implementation with shuffling and implementation without.
+  /**
+   * @brief Generator class for yielding batches. Data are shuffled when you initialize the generator or call Reset()
+   * method.
+   *
+   * @warning The behaviour is non-deterministic as the standard does not mandate the exact shuffling
+   * algorithm  or the exact number of random values it consumes from the engine for a given shuffle operation.
+   */
   class TrainingBatchGenerator {
    public:
     struct TrainingBatchGeneratorParameters {
@@ -58,9 +61,14 @@ namespace nnn {
       int seed = 42;
     };
 
+    struct TrainingBatch {
+      FloatMatrix features;
+      FloatMatrix labels;
+    };
+
     TrainingBatchGenerator(TrainingDataset& dataset, TrainingBatchGeneratorParameters params);
 
-    TrainingDataset::TrainingBatch GetNextBatch();
+    TrainingBatch GetNextBatch();
     bool HasNextBatch() const;
     void Reset();
     const std::vector<size_t>& GetIndices() const;

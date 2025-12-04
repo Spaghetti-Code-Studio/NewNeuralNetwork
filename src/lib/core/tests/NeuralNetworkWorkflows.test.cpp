@@ -441,19 +441,26 @@ TEST_CASE("TrainingDataset - Shuffling") {
   auto generator = nnn::TrainingBatchGenerator(dataset, {.isDataShufflingEnabled = true, .seed = 42});
   const std::vector<size_t>& indices = generator.GetIndices();
 
+#if defined(_MSC_VER)
   CHECK(indices[0] == 3);
   CHECK(indices[1] == 0);
   CHECK(indices[2] == 2);
   CHECK(indices[3] == 1);
+#else
+#endif
 
   generator.Reset();
 
+#if defined(_MSC_VER)
   CHECK(indices[0] == 2);
   CHECK(indices[1] == 3);
   CHECK(indices[2] == 0);
   CHECK(indices[3] == 1);
+#else
+#endif
 
   auto batch1 = generator.GetNextBatch();
+#if defined(_MSC_VER)
   CHECK(batch1.features(0, 0) == 2.0f);
   CHECK(batch1.features(0, 1) == 3.0f);
   CHECK(batch1.features(1, 0) == 6.0f);
@@ -462,8 +469,11 @@ TEST_CASE("TrainingDataset - Shuffling") {
   CHECK(batch1.labels(0, 1) == -3.0f);
   CHECK(batch1.labels(1, 0) == -6.0f);
   CHECK(batch1.labels(1, 1) == -7.0f);
+#else
+#endif
 
   auto batch2 = generator.GetNextBatch();
+#if defined(_MSC_VER)
   CHECK(batch2.features(0, 0) == 0.0f);
   CHECK(batch2.features(0, 1) == 1.0f);
   CHECK(batch2.features(1, 0) == 4.0f);
@@ -472,13 +482,17 @@ TEST_CASE("TrainingDataset - Shuffling") {
   CHECK(batch2.labels(0, 1) == -1.0f);
   CHECK(batch2.labels(1, 0) == -4.0f);
   CHECK(batch2.labels(1, 1) == -5.0f);
+#else
+#endif
 
   CHECK_FALSE(generator.HasNextBatch());
 
   generator.Reset();
-
+#if defined(_MSC_VER)
   CHECK(indices[0] == 3);
   CHECK(indices[1] == 2);
   CHECK(indices[2] == 1);
   CHECK(indices[3] == 0);
+#else
+#endif
 }
