@@ -1,6 +1,6 @@
 {
   "randomSeed": 42,
-  "hardThreadsLimit": 10,
+  "hardThreadsLimit": 16,
   "learningRate": 0.035,
   "learningRateDecay": 0.93,
   "weightDecay": 0.002,
