@@ -4,6 +4,8 @@ module add gcc
 module add cmake
 
 chmod +x ./scripts/run-production.sh
+chmod +x ./scripts/build-production.sh
+
 nice -n 19 ./scripts/run-production.sh
 
 echo "Confirmation by the provided python evaluator:"
