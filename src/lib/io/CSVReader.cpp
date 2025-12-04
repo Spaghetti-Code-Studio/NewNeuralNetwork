@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-cpp::result<std::shared_ptr<nnn::FloatMatrix>, std::string> nnn::CSVReader::Read(std::filesystem::path filepath) {  //
+cpp::result<std::shared_ptr<nnn::FloatMatrix>, nnn::IoError> nnn::CSVReader::Read(std::filesystem::path filepath) {  //
 
   std::ifstream inputFile;
   inputFile.open(filepath);
@@ -68,7 +68,7 @@ cpp::result<std::shared_ptr<nnn::FloatMatrix>, std::string> nnn::CSVReader::Read
 }
 
 bool nnn::CSVReader::IsValid(
-    cpp::result<std::shared_ptr<FloatMatrix>, std::string> result, size_t expectedCols, size_t expectedRows) {  //
+    cpp::result<std::shared_ptr<FloatMatrix>, IoError> result, size_t expectedCols, size_t expectedRows) {  //
 
   if (result.has_error()) {
     return false;
