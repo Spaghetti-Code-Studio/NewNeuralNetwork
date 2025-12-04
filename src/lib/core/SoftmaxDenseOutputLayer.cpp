@@ -22,13 +22,13 @@ namespace nnn {
 
   FloatMatrix SoftmaxDenseOutputLayer::Backward(const FloatMatrix& gradient) {  //
 
-    // Gradient here is already (actual - expecetd) from cross-entropy loss function.
+    // Gradient here is already (actual - expected) from cross-entropy loss function.
     // No need to call m_activationFunction->Derivative().
 
     auto hnc = gradient;
 
     m_lastInput.Transpose();
-    m_gradientWeigths = hnc * m_lastInput;
+    m_gradientWeights = hnc * m_lastInput;
     m_gradientBias = FloatMatrix::SumColumns(hnc);
 
     hnc.Transpose();

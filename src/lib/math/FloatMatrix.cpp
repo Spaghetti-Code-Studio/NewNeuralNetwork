@@ -1,13 +1,13 @@
 #include "FloatMatrix.hpp"
 #include "FloatMatrixInvalidDimensionException.hpp"
 
+#include <cstdlib>
 #include <iomanip>
 #include <ios>
 #include <iostream>
 #include <random>
 #include <sstream>
 #include <utility>
-#include <cstdlib>
 
 namespace nnn {
 
@@ -63,7 +63,8 @@ namespace nnn {
     return result;
   }
 
-  std::optional<std::reference_wrapper<float>> FloatMatrix::At(size_t row, size_t col) {
+  std::optional<float> FloatMatrix::At(size_t row, size_t col) const {  //
+
     if (row >= m_rows || col >= m_cols) {
       return std::nullopt;
     }
@@ -92,6 +93,24 @@ namespace nnn {
     for (size_t r = 0; r < GetRowCount(); ++r) {
       for (size_t c = begin; c <= end; ++c) {
         result(r, c - begin) = (*this)(r, c);
+      }
+    }
+
+    return result;
+  }
+
+  FloatMatrix FloatMatrix::GetColumns(const std::vector<size_t>& indices) const {  //
+
+    if (indices.size() == 0) {
+      return FloatMatrix(0, 0);
+    }
+
+    auto result = FloatMatrix(GetRowCount(), indices.size());
+
+    for (size_t r = 0; r < GetRowCount(); ++r) {
+      for (size_t i = 0; i < indices.size(); ++i) {
+        size_t c = indices[i];
+        result(r, i) = (*this)(r, c);
       }
     }
 
@@ -296,7 +315,8 @@ namespace nnn {
     return result;
   }
 
-  FloatMatrix FloatMatrix::SumColumns(const FloatMatrix& matrix) {
+  FloatMatrix FloatMatrix::SumColumns(const FloatMatrix& matrix) {  //
+
     auto result = nnn::FloatMatrix(matrix.GetRowCount(), 1);
     for (size_t i = 0; i < matrix.GetRowCount(); i++) {
       for (size_t j = 0; j < matrix.GetColCount(); j++) {
@@ -306,7 +326,8 @@ namespace nnn {
     return result;
   }
 
-  std::string FloatMatrix::ToString() const {
+  std::string FloatMatrix::ToString() const {  //
+
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(6);
     oss << "FloatMatrix (" << GetRowCount() << "x" << GetColCount() << ", transposed=" << std::boolalpha << m_transposed

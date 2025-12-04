@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <memory>
 #include <string>
 
 #include <result.hpp>
@@ -30,12 +31,11 @@ namespace nnn::DataLoader {
   };
 
   struct LoadingParameters {
-    size_t expectedClassNumber;
-    bool shouldOneHotEncode;
+    size_t expectedClassNumber = 2;
+    bool shouldOneHotEncode = false;
     float normalizationFactor = 1.0f;
   };
 
-  // TODO: optimally, this function should take clean-up logic and other functionality as parameter
   cpp::result<Dataset, std::string> Load(const Filepaths& filepaths,
       std::shared_ptr<IReader> reader,
       TrainingParameters trainingParams,

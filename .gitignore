@@ -55,3 +55,4 @@ data/
 
 # Predictions by the model
 test_predictions.csv
+train_predictions.csv
