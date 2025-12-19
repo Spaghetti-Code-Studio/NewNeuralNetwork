@@ -1,11 +1,6 @@
-Jakub Čížek <536601> & Marek Eibel <536376>
-
 # NewNeuralNetwork 1.2.0
 
-A straight-forward MLP training framework implemented in C++. 
-
-https://github.com/Spaghetti-Code-Studio/NewNeuralNetwork \
-<small>currently private, can we make it public?</small>
+A straight-forward MLP training framework implemented in C++.
 
 ## Running the project
 
